@@ -2,9 +2,9 @@ check the issue created
 
 -- steps to follow
 
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
-cd YOUR_REPO_NAME
-git checkout feature/their-branch-name
+git clone https://github.com/oyage_username/ape_reponame_eka.git
+cd ape_reponame_eka
+git checkout feature/oyage-branch-name
 
 -- do this before start to code
 git pull origin main
