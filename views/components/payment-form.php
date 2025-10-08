@@ -42,3 +42,5 @@
         </form>
     </div>
 </section>
+
+<!-- payment button is not clickable untill all fields filled -->
