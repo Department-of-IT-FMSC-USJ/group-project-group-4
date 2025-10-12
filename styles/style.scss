@@ -20,6 +20,7 @@ $bp-tablet: 960px;
 $bp-mobile: 768px;
 $bp-small: 480px;
 
+
 footer {
   border-top: 0.5px solid rgba(0, 0, 0, 0.1);
   font-family: $font-family;
@@ -767,6 +768,186 @@ a.btn {
 
 @media (max-width: 600px) {
   .page-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* === Nayanthi: Payment Form and Actions === */
+
+.pay-now {
+  background-color: $button-colour;
+  color: $button-text-colour;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 15px 0;
+  width: 100%;
+  transition: background 0.3s ease;
+
+  &:hover,
+  &:focus-visible {
+    background: $button-hover-colour;
+    color: $button-text-colour;
+  }
+
+  &:focus-visible {
+    outline: 2px solid color.adjust($button-colour, $lightness: 20%);
+    outline-offset: 2px;
+  }
+}
+
+.payment-section,
+.payment-wrapper {
+  width: 100%;
+}
+
+.payment-form-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.form-body {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 480px;
+  border: 1px solid black;
+  border-radius: 20px;
+  margin: 5px;
+  padding: 32px;
+  gap: 12px;
+  background: #ffffff;
+}
+
+.textbox {
+  font-family: $font-family;
+  color: $text-colour;
+  width: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  background: $body-colour;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.textbox:focus,
+textarea:focus,
+button:focus {
+  outline: 2px solid $blue-text-colour;
+  outline-offset: 2px;
+}
+
+textarea.textbox {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.field-row > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.msg {
+  font-size: 12px;
+  color: $text-colour;
+}
+
+button#submitBtn,
+.form-body button {
+  font-family: $font-family;
+  background-color: $button-colour;
+  color: $button-text-colour;
+  border-radius: 10px;
+  border: none;
+  padding: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  height: 50px;
+  transition: background-color 120ms ease-in-out, box-shadow 120ms ease-in-out;
+}
+
+button#submitBtn.is-disabled {
+  background-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.warn-msg {
+  background-color: #fef3c7;
+  border: 2px solid #d97706;
+  border-radius: 8px;
+  padding: 16px;
+  color: #8d5700;
+  margin: 16px 0;
+  display: flex;
+  gap: 12px;
+}
+
+.warn-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.warn-title {
+  font-weight: 700;
+  font-size: 18px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 12px;
+  margin: -8px 0 4px;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #c3e6cb;
+}
+
+.incomplete-fields-warning {
+  background: rgba(255, 153, 0, 0.1);
+  border: 1px dashed rgba(255, 153, 0, 0.6);
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: #b45309;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.warning-symbol {
+  font-size: 24px;
+}
+
+@media (max-width: 600px) {
+  .form-body {
+    padding: 24px;
+  }
+
+  .field-row {
     grid-template-columns: 1fr;
   }
 }
