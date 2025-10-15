@@ -951,3 +951,110 @@ button#submitBtn.is-disabled {
     grid-template-columns: 1fr;
   }
 }
+/* === Tharuka: Order Summary and Pricing Widgets === */
+
+.pricing-summary {
+  border-radius: 16px;
+  border: 1px dashed rgba(17, 106, 252, 0.4);
+  padding: 16px 20px;
+  background: rgba(17, 106, 252, 0.05);
+  display: grid;
+  gap: 12px;
+
+  &[hidden] {
+    display: none;
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    color: rgba(0, 0, 0, 0.7);
+  }
+
+  &__total {
+    font-weight: 700;
+    border-top: 1px solid rgba(17, 106, 252, 0.15);
+    padding-top: 12px;
+  }
+}
+
+.order-summary {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  background: #fbfdff;
+  padding: 24px;
+  box-shadow: 0 16px 32px rgba(17, 106, 252, 0.08);
+
+  &[hidden] {
+    display: none;
+  }
+
+  & > h3 {
+    margin: 0 0 16px;
+    font-size: 1.1rem;
+    color: #0b1841;
+  }
+
+  &__list {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+
+    dt,
+    dd {
+      margin: 0;
+    }
+
+    dt {
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.6);
+    }
+
+    dd {
+      font-weight: 600;
+      color: #0b1841;
+    }
+  }
+
+  &__total {
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    padding-top: 12px;
+
+    dd {
+      font-size: 1.1rem;
+      color: $button-colour;
+    }
+  }
+
+  @media (max-width: #{$bp-mobile}) {
+    padding: 20px;
+    border-radius: 14px;
+
+    & > h3 {
+      font-size: 1rem;
+    }
+
+    &__list {
+      gap: 8px;
+    }
+
+    &__row {
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    &__total dd {
+      font-size: 1.05rem;
+    }
+  }
+}
