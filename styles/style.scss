@@ -953,9 +953,425 @@ button#submitBtn.is-disabled {
     grid-template-columns: 1fr;
   }
 }
-.services {
-  margin-bottom: 60px;
+/* === Inshab: NIC Application Flow and Forms === */
+
+.flow {
+  display: grid;
+  gap: 32px;
+
+  @media (max-width: #{$bp-tablet}) {
+    gap: 24px;
+  }
+
+  @media (max-width: #{$bp-mobile}) {
+    gap: 20px;
+  }
 }
+
+.flow-step {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 18px 40px rgba(17, 106, 252, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &.is-active {
+    transform: translateY(-2px);
+    box-shadow: 0 24px 48px rgba(17, 106, 252, 0.16);
+  }
+
+  &[hidden] {
+    display: none !important;
+  }
+
+  & > h2 {
+    margin: 0;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    color: #0b1841;
+  }
+
+  & > p {
+    margin: 0;
+    color: rgba(0, 0, 0, 0.65);
+    line-height: 1.6;
+  }
+
+  label {
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.75);
+  }
+
+  input,
+  select,
+  textarea {
+    font-family: $font-family;
+    font-size: 1rem;
+    padding: 12px 14px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 12px;
+    background: #fbfdff;
+    transition: border 0.2s ease, box-shadow 0.2s ease;
+
+    &:focus {
+      border-color: $button-colour;
+      box-shadow: 0 0 0 4px rgba(49, 58, 166, 0.15);
+      outline: none;
+    }
+  }
+
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23171E53' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 16px 16px;
+  }
+
+  .btn {
+    align-self: flex-start;
+
+    @media (max-width: 720px) {
+      align-self: stretch;
+    }
+  }
+
+  @media (max-width: #{$bp-tablet}) {
+    padding: 28px;
+    gap: 16px;
+  }
+
+  @media (max-width: #{$bp-mobile}) {
+    padding: 22px;
+    border-radius: 16px;
+    box-shadow: 0 14px 28px rgba(17, 106, 252, 0.12);
+
+    & > h2 {
+      font-size: clamp(1.35rem, 5vw, 1.75rem);
+    }
+
+    & > p {
+      font-size: 0.95rem;
+    }
+  }
+
+  @media (max-width: #{$bp-small}) {
+    padding: 18px;
+    gap: 14px;
+  }
+}
+
+.flow-control {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+
+  .btn {
+    min-width: 180px;
+  }
+
+  @media (max-width: #{$bp-mobile}) {
+    flex-direction: column;
+    gap: 12px;
+
+    .btn {
+      width: 100%;
+      min-width: auto;
+    }
+  }
+}
+
+.form-hint {
+  margin: -4px 0 12px;
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.nic-form-frame {
+  border: 2px dashed rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.nic-application {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.nic-section {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 28px;
+  box-shadow: 0 18px 40px rgba(17, 106, 252, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.nic-section__header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nic-section__header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #0b1841;
+}
+
+.nic-section__hint {
+  margin: 0;
+  font-size: 0.95rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.nic-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.nic-grid--three {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.nic-grid--two {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.nic-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nic-field span {
+  color: #dc2626;
+}
+
+.nic-inline-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.nic-file-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.nic-file {
+  flex: 1;
+  min-width: 220px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 18px;
+  border-radius: 14px;
+  border: 1px dashed rgba(17, 106, 252, 0.28);
+  background: rgba(17, 106, 252, 0.08);
+  font-size: 0.95rem;
+  color: rgba(0, 0, 0, 0.72);
+  cursor: pointer;
+}
+
+.nic-file input {
+  display: none;
+}
+
+.nic-notice {
+  margin: 12px 0 0;
+  padding: 18px;
+  border-radius: 16px;
+  background: rgba(255, 180, 0, 0.12);
+  border: 1px solid rgba(255, 180, 0, 0.32);
+  color: rgba(0, 0, 0, 0.78);
+  line-height: 1.6;
+}
+
+.nic-notice strong {
+  display: inline-block;
+  margin-bottom: 6px;
+}
+
+.nic-application .section {
+  padding-top: 18px;
+  margin-top: 14px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+
+  & h3 {
+    font-size: 15px;
+    margin: 0 0 14px;
+  }
+
+  .grid {
+    display: grid;
+    gap: 12px;
+
+    &.cols-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    &.cols-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    &.cols-1 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .field-wrap {
+    label {
+      display: block;
+      font-size: 13px;
+      color: rgba(0, 0, 0, 0.6);
+      margin-bottom: 6px;
+    }
+
+    .required {
+      color: #d43f3a;
+      margin-left: 6px;
+      font-weight: 600;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 6px;
+      font-size: 14px;
+      background: #fbfdff;
+      color: $text-colour;
+      outline: none;
+
+      &:focus {
+        border-color: $blue-text-colour;
+        box-shadow: 0 0 0 6px $blue-box-blur;
+      }
+    }
+
+    ::placeholder {
+      color: rgba(0, 0, 0, 0.25);
+    }
+
+    .select-box {
+      position: relative;
+
+      select {
+        appearance: none;
+        padding-right: 34px;
+      }
+
+      &::after {
+        content: "▾";
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        color: rgba(0, 0, 0, 0.6);
+      }
+    }
+  }
+
+  .file-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+
+    .file {
+      flex: 1;
+      border-radius: 8px;
+      border: 1px dashed rgba(0, 0, 0, 0.12);
+      padding: 14px;
+      text-align: center;
+      background: #fbfdff;
+      position: relative;
+      font-size: 13px;
+      color: rgba(0, 0, 0, 0.6);
+
+      input[type="file"] {
+        opacity: 0;
+        position: absolute;
+        inset: 0;
+        cursor: pointer;
+      }
+    }
+  }
+
+  .inline-check {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.7);
+  }
+
+  .notice {
+    margin-top: 12px;
+    padding: 14px;
+    border-radius: 6px;
+    background: $notice-bg-colour;
+    border: $notice-border-colour;
+    color: $notice-text-colour;
+    font-size: 13px;
+
+    strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+  }
+
+  .actions {
+    margin-top: 18px;
+    text-align: center;
+
+    button {
+      background: $button-colour;
+      color: $button-text-colour;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: 15px;
+
+      &:hover {
+        background: $button-hover-colour;
+      }
+    }
+  }
+}
+
+@media (max-width: 960px) {
+  .flow-step {
+    padding: 28px;
+  }
+}
+
+@media (max-width: 600px) {
+  .flow-step {
+    padding: 24px;
+    gap: 16px;
+  }
+
+  .nic-application .section .grid.cols-3,
+  .nic-application .section .grid.cols-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* === Tharuka: Order Summary and Pricing Widgets === */
 
 .services-grid {
   display: grid;
