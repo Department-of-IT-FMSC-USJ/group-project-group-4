@@ -1,14 +1,5 @@
 <?php
-<<<<<<< HEAD
-/**
- * Common helper functions used by APIs
- */
 
-/**
- * Read request data for POST/PUT/DELETE
- * - For application/json content-type, decode JSON body
- * - For form-encoded requests, use $_POST
- */
 function get_request_data()
 {
     $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
@@ -96,5 +87,3 @@ function logError($message)
 }
 
 ?>
-
->>>>>>> 627101f20475caa6584102c5d5ca4173fcc6df1c
