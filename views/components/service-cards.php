@@ -6,6 +6,7 @@ $services = [
         'description' => 'Request official copies of your birth certificate quickly and securely.',
         'cta' => 'Get Birth Certificate',
         'href' => '/birthcertificate.php',
+        'image' => '/assets/bc images.jpg',
     ],
     [
         'id' => 'nic',
@@ -13,6 +14,7 @@ $services = [
         'description' => 'Apply for a replacement National Identity Card and track your request.',
         'cta' => 'Apply for NIC',
         'href' => '/nic.php',
+        'image' => '/assets/Digital-NIC.jpg',
     ],
     [
         'id' => 'fines',
@@ -20,6 +22,7 @@ $services = [
         'description' => 'Review outstanding fines and complete your payment online.',
         'cta' => 'Pay Fines',
         'href' => '/fines.php',
+        'image' => '/assets/fine.jpg',
     ],
 ];
 ?>
@@ -27,7 +30,9 @@ $services = [
 <div class="services-grid" role="list">
     <?php foreach ($services as $service): ?>
         <article class="service-card" data-service-id="<?= htmlspecialchars($service['id']) ?>" role="listitem">
-            <div class="service-card__media" aria-hidden="true">Image</div>
+            <div class="service-card__media" aria-hidden="true">
+                <img src="<?= htmlspecialchars($service['image']) ?>" alt="<?= htmlspecialchars($service['title']) ?>" loading="lazy">
+            </div>
             <div class="service-card__content">
                 <h3><?= htmlspecialchars($service['title']) ?></h3>
                 <p><?= htmlspecialchars($service['description']) ?></p>
