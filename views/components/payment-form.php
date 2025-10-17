@@ -86,7 +86,7 @@
 </section>
 
 <script>
-    // Lightweight input helpers for payment fields
+    
     (function() {
         const cardInput = document.getElementById('cardnumber');
         const expInput = document.getElementById('expirydate');
@@ -103,7 +103,7 @@
         }
 
         function luhnCheck(number) {
-            // Optional: Luhn algorithm for basic card validation
+            
             let sum = 0;
             let shouldDouble = false;
             for (let i = number.length - 1; i >= 0; i--) {
@@ -137,12 +137,12 @@
 
         if (expInput) {
             expInput.addEventListener('input', function() {
-                // Auto-insert slash after MM
+                
                 let v = this.value.replace(/[^\d]/g, '').slice(0, 4);
                 if (v.length >= 3) v = v.slice(0, 2) + '/' + v.slice(2);
                 this.value = v;
 
-                // Validate MM and basic format
+                
                 const mm = parseInt((v.slice(0, 2) || '0'), 10);
                 const validMM = mm >= 1 && mm <= 12;
                 const validFmt = /^(0[1-9]|1[0-2])\/\d{2}$/.test(v);
@@ -179,7 +179,7 @@
 
         if (form) {
             form.addEventListener('submit', function(e) {
-                // Final sanity checks
+                
                 const digits = cardInput.value.replace(/\D/g, '');
                 if (digits.length !== 16 || !luhnCheck(digits)) {
                     e.preventDefault();
@@ -201,7 +201,7 @@
                     nameInput.reportValidity();
                     return false;
                 }
-                // email input type handles most validation; add a basic pattern fallback
+                
                 if (emailInput && !/.+@.+\..+/.test(emailInput.value)) {
                     e.preventDefault();
                     emailInput.setCustomValidity('Enter a valid email address');
