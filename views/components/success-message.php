@@ -16,9 +16,18 @@ $messages = [
         'body' => 'Your fine has been successfully paid. The payment has been recorded in the system, and your driving license status will be updated accordingly. A payment confirmation has been sent to your registered email address. Please retain this receipt for future reference.',
         'confirmation' => 'FINE-986050',
     ],
+    'payment' => [
+        'title' => 'Payment Successful',
+        'body' => 'Your payment has been successfully processed. A confirmation has been sent to your email. Thank you for using OneID services.',
+        'confirmation' => 'PAY-986050',
+    ],
 ];
 
 $message = $messages[$variant] ?? $messages['nic'];
+// Allow overriding confirmation number via $confirmation if provided
+$confirmationValue = isset($confirmation) && $confirmation !== ''
+    ? $confirmation
+    : ($message['confirmation'] ?? 'CONF-000000');
 ?>
 
 <section class="success-message" aria-labelledby="success-message-heading">
@@ -27,7 +36,7 @@ $message = $messages[$variant] ?? $messages['nic'];
 
         <div class="success-message__badge" role="status">
             <span class="success-message__badge-label">Confirmation Number:</span>
-            <span class="success-message__badge-value"><?= htmlspecialchars($message['confirmation']) ?></span>
+            <span class="success-message__badge-value"><?= htmlspecialchars($confirmationValue) ?></span>
         </div>
 
         <p class="success-message__body">
@@ -35,7 +44,7 @@ $message = $messages[$variant] ?? $messages['nic'];
         </p>
 
         <div class="success-message__help" role="note">
-            <p>Need help? Contact our support team at support@oneid.gov.lk or call +94 112 223 333 with your confirmation number.</p>
+            <p>Need help? Contact our support team at support@oneid.gov.lk or call ‪+94 112 223 333‬ with your confirmation number.</p>
         </div>
 
         <a href="/index.php" class="success-message__home-btn btn">Return To Home</a>
