@@ -1,221 +1,168 @@
 <?php
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../include/functions.php';
+
+session_start();
+require_once __DIR__ . '/config/database.php';
 
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    if (isset($_GET['id'])) {
-        getFineById($_GET['id']);
-    } elseif (isset($_GET['vehicle'])) {
-        getFinesByVehicle($_GET['vehicle']);
-    } elseif (isset($_GET['license'])) {
-        getFinesByLicense($_GET['license']);
-    } else {
-        getAllFines();
-    }
-    exit;
+if (!isset($_SESSION['fines_flow'])) {
+    $_SESSION['fines_flow'] = [
+        'step' => 'lookup',
+        'fine' => null,
+        'order' => null,
+        'error' => null,
+    ];
 }
 
-// Handle POST requests
+
+function computeFineOrder(array $fine): array
+{
+
+    $fineAmount = (float)($fine['fine_amount'] ?? $fine['amount'] ?? 0);
+    $serviceFee = 250.00;
+    $postalFee = 100.00;
+
+    $subtotal = $fineAmount + $serviceFee + $postalFee;
+    $tax = round($subtotal * 0.18, 2);
+    $total = $subtotal + $tax;
+
+    return [
+        'fineAmount' => $fineAmount,
+        'serviceFee' => $serviceFee,
+        'postalFee' => $postalFee,
+        'subtotal' => $subtotal,
+        'tax' => $tax,
+        'total' => $total,
+    ];
+}
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $data = get_request_data();
-    $action = $data['action'] ?? '';
+    $action = $_POST['action'] ?? '';
 
-    if ($action === 'linkPayment') {
-        linkPaymentToFine();
-    } else {
-        getFines();
-    }
-    exit;
-}
-
-sendResponse(false, "Invalid request method");
-
-
-function get_request_data()
-{
-    $data = [];
-    $method = $_SERVER['REQUEST_METHOD'];
-    if ($method === 'POST') {
-        $data = $_POST;
-        if (empty($data)) {
-            $input = file_get_contents('php://input');
-            $data = json_decode($input, true) ?? [];
-        }
-    } else {
-        $input = file_get_contents('php://input');
-        $data = json_decode($input, true) ?? [];
-    }
-    return $data;
-}
+    switch ($action) {
+        case 'lookup_fine':
+            try {
+                $input = trim($_POST['fineId'] ?? '');
+                if ($input === '') {
+                    $_SESSION['fines_flow']['error'] = 'Please enter a Fine ID, Vehicle Number, or License Number.';
+                    $_SESSION['fines_flow']['step'] = 'lookup';
+                    header('Location: /fines.php');
+                    exit;
+                }
 
 
-function sendResponse($success, $message, $data = [])
-{
-    header('Content-Type: application/json');
-    echo json_encode([
-        'success' => $success,
-        'message' => $message,
-        'data' => $data
-    ]);
-    exit;
-}
+                $fine = null;
+
+                if (ctype_digit($input)) {
+                    $stmt = $pdo->prepare("SELECT f.*, m.mistake, m.amount AS fine_amount, p.status AS payment_status, f.payment_id
+                                            FROM fines f
+                                            LEFT JOIN mistakes m ON f.mistake_id = m.mistake_id
+                                            LEFT JOIN payments p ON f.payment_id = p.payment_id
+                                            WHERE f.fine_id = ?");
+                    $stmt->execute([$input]);
+                    $fine = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+                }
+
+                if (!$fine) {
+
+                    $stmt = $pdo->prepare("SELECT f.*, m.mistake, m.amount AS fine_amount, p.status AS payment_status, f.payment_id
+                                            FROM fines f
+                                            LEFT JOIN mistakes m ON f.mistake_id = m.mistake_id
+                                            LEFT JOIN payments p ON f.payment_id = p.payment_id
+                                            WHERE f.vehicle_number = ?
+                                            ORDER BY f.issued_at DESC
+                                            LIMIT 1");
+                    $stmt->execute([$input]);
+                    $fine = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+                }
+
+                if (!$fine) {
+
+                    $stmt = $pdo->prepare("SELECT f.*, m.mistake, m.amount AS fine_amount, p.status AS payment_status, f.payment_id
+                                            FROM fines f
+                                            LEFT JOIN mistakes m ON f.mistake_id = m.mistake_id
+                                            LEFT JOIN payments p ON f.payment_id = p.payment_id
+                                            WHERE f.license_number = ?
+                                            ORDER BY f.issued_at DESC
+                                            LIMIT 1");
+                    $stmt->execute([$input]);
+                    $fine = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+                }
+
+                if (!$fine) {
+                    $_SESSION['fines_flow']['error'] = 'No matching fine found. Please check your input and try again.';
+                    $_SESSION['fines_flow']['step'] = 'lookup';
+                    $_SESSION['fines_flow']['fine'] = null;
+                    $_SESSION['fines_flow']['order'] = null;
+                } else {
+
+                    if ($fine['payment_status'] === 'Completed') {
+                        $_SESSION['fines_flow']['fine'] = $fine;
+                        $_SESSION['fines_flow']['order'] = null;
+                        $_SESSION['fines_flow']['error'] = null;
+                        $_SESSION['fines_flow']['step'] = 'done';
+                    } else {
+                        $order = computeFineOrder($fine);
+                        $_SESSION['fines_flow']['fine'] = $fine;
+                        $_SESSION['fines_flow']['order'] = $order;
+                        $_SESSION['fines_flow']['error'] = null;
+                        $_SESSION['fines_flow']['step'] = 'details';
+                    }
+                }
+            } catch (Throwable $e) {
+                $_SESSION['fines_flow']['error'] = 'Fine lookup failed. Please try again later.';
+                $_SESSION['fines_flow']['step'] = 'lookup';
+            }
+            header('Location: /fines.php');
+            exit;
+
+        case 'proceed_to_payment':
+            $_SESSION['fines_flow']['step'] = 'payment';
+            header('Location: /fines.php');
+            exit;
 
 
-function getFines()
-{
-    global $pdo;
+        case 'payment_done':
 
-    $data = get_request_data();
-    $vehicleNumber = trim($data['vehicleNumber'] ?? $data['vehicle_number'] ?? '');
-    $licenseNumber = trim($data['licenseNumber'] ?? $data['license_number'] ?? '');
+            $fineId = $_SESSION['fines_flow']['fine']['fine_id'] ?? null;
+            $paymentId = intval($_POST['payment_id'] ?? 0);
+            if ($fineId && $paymentId) {
+                $stmt = $pdo->prepare("UPDATE fines SET payment_id = ? WHERE fine_id = ?");
+                $stmt->execute([$paymentId, $fineId]);
+                // Update session state to reflect paid
+                $stmt = $pdo->prepare("SELECT f.*, m.mistake, m.amount AS fine_amount, p.status AS payment_status, f.payment_id
+                                        FROM fines f
+                                        LEFT JOIN mistakes m ON f.mistake_id = m.mistake_id
+                                        LEFT JOIN payments p ON f.payment_id = p.payment_id
+                                        WHERE f.fine_id = ?");
+                $stmt->execute([$fineId]);
+                $fine = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+                $_SESSION['fines_flow']['fine'] = $fine;
+                $_SESSION['fines_flow']['order'] = null;
+                $_SESSION['fines_flow']['error'] = null;
+                $_SESSION['fines_flow']['step'] = 'done';
+            }
+            header('Location: /fines.php');
+            exit;
 
-    if (empty($vehicleNumber) && empty($licenseNumber)) {
-        sendResponse(false, "Please provide vehicle number or license number");
-    }
-
-    if (!empty($vehicleNumber) && !empty($licenseNumber)) {
-        $sql = "SELECT f.*, m.mistake, m.amount AS fine_amount, p.status AS payment_status
-                FROM fines f
-                LEFT JOIN mistakes m ON f.mistake_id = m.mistake_id
-                LEFT JOIN payments p ON f.payment_id = p.payment_id
-                WHERE f.vehicle_number = ? OR f.license_number = ?
-                ORDER BY f.issued_at DESC";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$vehicleNumber, $licenseNumber]);
-    } elseif (!empty($vehicleNumber)) {
-        $sql = "SELECT f.*, m.mistake, m.amount AS fine_amount, p.status AS payment_status
-                FROM fines f
-                LEFT JOIN mistakes m ON f.mistake_id = m.mistake_id
-                LEFT JOIN payments p ON f.payment_id = p.payment_id
-                WHERE f.vehicle_number = ?
-                ORDER BY f.issued_at DESC";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$vehicleNumber]);
-    } else {
-        $sql = "SELECT f.*, m.mistake, m.amount AS fine_amount, p.status AS payment_status
-                FROM fines f
-                LEFT JOIN mistakes m ON f.mistake_id = m.mistake_id
-                LEFT JOIN payments p ON f.payment_id = p.payment_id
-                WHERE f.license_number = ?
-                ORDER BY f.issued_at DESC";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$licenseNumber]);
-    }
-
-    $fines = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    if (!empty($fines)) {
-        sendResponse(true, "Fines found", ['count' => count($fines), 'fines' => $fines]);
-    } else {
-        sendResponse(true, "No fines found", ['count' => 0, 'fines' => []]);
-    }
-}
-
-
-function getFineById($id)
-{
-    global $pdo;
-
-    $sql = "SELECT f.*, m.mistake, m.amount, p.status AS payment_status, p.payment_date
-            FROM fines f
-            LEFT JOIN mistakes m ON f.mistake_id = m.mistake_id
-            LEFT JOIN payments p ON f.payment_id = p.payment_id
-            WHERE f.fine_id = ?";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$id]);
-    $fine = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($fine) {
-        sendResponse(true, "Fine found", $fine);
-    } else {
-        sendResponse(false, "Fine not found");
-    }
-}
-
-
-function getFinesByVehicle($vehicleNumber)
-{
-    global $pdo;
-
-    $sql = "SELECT f.*, m.mistake, m.amount, p.status AS payment_status
-            FROM fines f
-            LEFT JOIN mistakes m ON f.mistake_id = m.mistake_id
-            LEFT JOIN payments p ON f.payment_id = p.payment_id
-            WHERE f.vehicle_number = ?
-            ORDER BY f.issued_at DESC";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$vehicleNumber]);
-    $fines = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    if (!empty($fines)) {
-        sendResponse(true, "Fines found", ['count' => count($fines), 'fines' => $fines]);
-    } else {
-        sendResponse(false, "No fines found for this vehicle");
+        case 'reset':
+            $_SESSION['fines_flow'] = [
+                'step' => 'lookup',
+                'fine' => null,
+                'order' => null,
+                'error' => null,
+            ];
+            header('Location: /fines.php');
+            exit;
     }
 }
 
 
-function getFinesByLicense($licenseNumber)
-{
-    global $pdo;
 
-    $sql = "SELECT f.*, m.mistake, m.amount, p.status AS payment_status
-            FROM fines f
-            LEFT JOIN mistakes m ON f.mistake_id = m.mistake_id
-            LEFT JOIN payments p ON f.payment_id = p.payment_id
-            WHERE f.license_number = ?
-            ORDER BY f.issued_at DESC";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$licenseNumber]);
-    $fines = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    if (!empty($fines)) {
-        sendResponse(true, "Fines found", ['count' => count($fines), 'fines' => $fines]);
-    } else {
-        sendResponse(false, "No fines found for this license");
-    }
-}
+$flowStep = $_SESSION['fines_flow']['step'] ?? 'lookup';
+$fine = $_SESSION['fines_flow']['fine'] ?? null;
+$order = $_SESSION['fines_flow']['order'] ?? null;
+$flowError = $_SESSION['fines_flow']['error'] ?? null;
 
 
-function linkPaymentToFine()
-{
-    global $pdo;
-
-    $data = get_request_data();
-    $fineId = $data['fine_id'] ?? $data['fineId'] ?? null;
-    $paymentId = $data['payment_id'] ?? $data['paymentId'] ?? null;
-
-    if (!$fineId || !$paymentId) {
-        sendResponse(false, "Fine ID and Payment ID are required");
-    }
-
-    $stmt = $pdo->prepare("UPDATE fines SET payment_id = ? WHERE fine_id = ?");
-    if ($stmt->execute([$paymentId, $fineId])) {
-        if ($stmt->rowCount() > 0) {
-            sendResponse(true, "Payment linked to fine successfully");
-        } else {
-            sendResponse(false, "Fine not found");
-        }
-    } else {
-        sendResponse(false, "Failed to link payment");
-    }
-}
-
-
-function getAllFines()
-{
-    global $pdo;
-
-    $sql = "SELECT f.fine_id, f.vehicle_number, f.license_number, f.driver_name, f.issued_at, f.due_at,
-                   m.mistake, m.amount AS fine_amount, p.status AS payment_status
-            FROM fines f
-            LEFT JOIN mistakes m ON f.mistake_id = m.mistake_id
-            LEFT JOIN payments p ON f.payment_id = p.payment_id
-            ORDER BY f.issued_at DESC
-            LIMIT 100";
-    $stmt = $pdo->query($sql);
-    $fines = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    sendResponse(true, "All fines retrieved", $fines);
-}
+require __DIR__ . '/views/fines.view.php';
