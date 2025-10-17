@@ -38,13 +38,13 @@ function processPayment()
     global $pdo;
     $data = get_request_data();
 
-    
+
     $amount = floatval($data['amount'] ?? $data['order_total'] ?? 0);
     if ($amount <= 0) {
         sendResponse(false, "Invalid payment amount");
     }
 
-    
+
     $cardholderName = validateInput($data['cardholdername'] ?? '');
     $cardNumber = validateInput($data['cardnumber'] ?? '');
     $expiryDate = validateInput($data['expirydate'] ?? '');
@@ -55,41 +55,71 @@ function processPayment()
     $successVariant = $data['success_variant'] ?? 'payment';
     $serviceId = $data['service_id'] ?? null;
 
-    
-    if (empty($cardholderName) || empty($cardNumber) || empty($expiryDate) ||
-        empty($cvv) || empty($email) || empty($phone) || empty($address)) {
+
+    if (
+        empty($cardholderName) || empty($cardNumber) || empty($expiryDate) ||
+        empty($cvv) || empty($email) || empty($phone) || empty($address)
+    ) {
         sendResponse(false, "All payment fields are required");
     }
 
-    
+
     $cardDigits = preg_replace('/\D/', '', $cardNumber);
-    if (strlen($cardDigits) < 13 || strlen($cardDigits) > 19) {
-        sendResponse(false, "Invalid card number");
+    if (strlen($cardDigits) !== 16 || !ctype_digit($cardDigits)) {
+        sendResponse(false, "Invalid card number (must be exactly 16 digits)");
     }
 
-    
+
     if (!preg_match('/^(0[1-9]|1[0-2])\/\d{2}$/', $expiryDate)) {
         sendResponse(false, "Invalid expiry date format (use MM/YY)");
     }
 
-    
-    if (!preg_match('/^\d{3,4}$/', $cvv)) {
-        sendResponse(false, "Invalid CVV");
+
+    if (!preg_match('/^\d{3}$/', $cvv)) {
+        sendResponse(false, "Invalid CVV (must be 3 digits)");
     }
 
-    
+
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         sendResponse(false, "Invalid email format");
     }
 
     
+    if (!preg_match('/^[A-Za-z ]+$/', $cardholderName)) {
+        sendResponse(false, "Invalid cardholder name (letters and spaces only)");
+    }
+
+    
+    $phoneDigits = preg_replace('/\D/', '', $phone);
+    if (strlen($phoneDigits) !== 10) {
+        sendResponse(false, "Invalid phone number (must be 10 digits)");
+    }
+
+    
+    if (strlen($address) > 200) {
+        sendResponse(false, "Address is too long (max 200 characters)");
+    }
+
+
     $status = 'Completed';
     $paymentDate = date('Y-m-d H:i:s');
 
-    
+
     $stmt = $pdo->prepare("INSERT INTO payments (amount, payment_date, status) VALUES (?, ?, ?)");
     if ($stmt->execute([$amount, $paymentDate, $status])) {
         $paymentId = $pdo->lastInsertId();
+
+        
+        $acceptsJson = isset($_SERVER['HTTP_ACCEPT']) && stripos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false;
+        $isFormPost = !empty($_POST) && !$acceptsJson;
+
+        if ($isFormPost) {
+            
+            $variant = in_array($successVariant, ['nic', 'birth', 'fine']) ? $successVariant : 'payment';
+            $qs = http_build_query(['success' => $variant, 'id' => $paymentId]);
+            header('Location: /payment-success.php?' . $qs);
+            exit;
+        }
 
         sendResponse(true, "Payment processed successfully", [
             'payment_id' => $paymentId,
@@ -157,4 +187,3 @@ function updatePaymentStatus()
         sendResponse(false, "Failed to update payment status");
     }
 }
-?>
