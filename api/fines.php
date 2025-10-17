@@ -1,22 +1,57 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../include/functions.php';
 
 
-function get_request_data() {
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    if (isset($_GET['id'])) {
+        getFineById($_GET['id']);
+    } elseif (isset($_GET['vehicle'])) {
+        getFinesByVehicle($_GET['vehicle']);
+    } elseif (isset($_GET['license'])) {
+        getFinesByLicense($_GET['license']);
+    } else {
+        getAllFines();
+    }
+    exit;
+}
+
+// Handle POST requests
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = get_request_data();
+    $action = $data['action'] ?? '';
+
+    if ($action === 'linkPayment') {
+        linkPaymentToFine();
+    } else {
+        getFines();
+    }
+    exit;
+}
+
+sendResponse(false, "Invalid request method");
+
+
+function get_request_data()
+{
     $data = [];
     $method = $_SERVER['REQUEST_METHOD'];
     if ($method === 'POST') {
         $data = $_POST;
+        if (empty($data)) {
+            $input = file_get_contents('php://input');
+            $data = json_decode($input, true) ?? [];
+        }
     } else {
         $input = file_get_contents('php://input');
-        $data = json_decode($input, true);
+        $data = json_decode($input, true) ?? [];
     }
     return $data;
 }
 
 
-function sendResponse($success, $message, $data = []) {
+function sendResponse($success, $message, $data = [])
+{
     header('Content-Type: application/json');
     echo json_encode([
         'success' => $success,
@@ -27,7 +62,8 @@ function sendResponse($success, $message, $data = []) {
 }
 
 
-function getFines() {
+function getFines()
+{
     global $pdo;
 
     $data = get_request_data();
@@ -77,10 +113,11 @@ function getFines() {
 }
 
 
-function getFineById($id) {
+function getFineById($id)
+{
     global $pdo;
 
-    $sql = "SELECT f.*, m.mistake, m.amount AS fine_amount, p.status AS payment_status, p.payment_date
+    $sql = "SELECT f.*, m.mistake, m.amount, p.status AS payment_status, p.payment_date
             FROM fines f
             LEFT JOIN mistakes m ON f.mistake_id = m.mistake_id
             LEFT JOIN payments p ON f.payment_id = p.payment_id
@@ -97,7 +134,52 @@ function getFineById($id) {
 }
 
 
-function linkPaymentToFine() {
+function getFinesByVehicle($vehicleNumber)
+{
+    global $pdo;
+
+    $sql = "SELECT f.*, m.mistake, m.amount, p.status AS payment_status
+            FROM fines f
+            LEFT JOIN mistakes m ON f.mistake_id = m.mistake_id
+            LEFT JOIN payments p ON f.payment_id = p.payment_id
+            WHERE f.vehicle_number = ?
+            ORDER BY f.issued_at DESC";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$vehicleNumber]);
+    $fines = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if (!empty($fines)) {
+        sendResponse(true, "Fines found", ['count' => count($fines), 'fines' => $fines]);
+    } else {
+        sendResponse(false, "No fines found for this vehicle");
+    }
+}
+
+
+function getFinesByLicense($licenseNumber)
+{
+    global $pdo;
+
+    $sql = "SELECT f.*, m.mistake, m.amount, p.status AS payment_status
+            FROM fines f
+            LEFT JOIN mistakes m ON f.mistake_id = m.mistake_id
+            LEFT JOIN payments p ON f.payment_id = p.payment_id
+            WHERE f.license_number = ?
+            ORDER BY f.issued_at DESC";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$licenseNumber]);
+    $fines = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if (!empty($fines)) {
+        sendResponse(true, "Fines found", ['count' => count($fines), 'fines' => $fines]);
+    } else {
+        sendResponse(false, "No fines found for this license");
+    }
+}
+
+
+function linkPaymentToFine()
+{
     global $pdo;
 
     $data = get_request_data();
@@ -121,7 +203,8 @@ function linkPaymentToFine() {
 }
 
 
-function getAllFines() {
+function getAllFines()
+{
     global $pdo;
 
     $sql = "SELECT f.fine_id, f.vehicle_number, f.license_number, f.driver_name, f.issued_at, f.due_at,
