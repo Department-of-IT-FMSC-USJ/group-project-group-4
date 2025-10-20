@@ -36,7 +36,7 @@ $title = 'Fine Settlement - OneID';
                     <span class="fine-total__label">No fine to pay.</span>
                 </div>
                 <div class="delivery-message" style="margin-top:1rem; background:#e6f7e6; padding:1rem; border-radius:8px;">
-                    <strong>Your fine has been paid and will be delivered to your doorstep.</strong>
+                    <strong>Your fine has been paid and the license will be delivered to your doorstep.</strong>
                 </div>
             </div>
         </div>
