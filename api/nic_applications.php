@@ -2,8 +2,8 @@
 
 
 // Include required files
-require_once _DIR_ . '/../config/database.php';
-require_once _DIR_ . '/../include/functions.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../include/functions.php';
 
 // Get HTTP method
 $method = $_SERVER['REQUEST_METHOD'];
