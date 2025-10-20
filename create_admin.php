@@ -1,13 +1,6 @@
-#!/usr/bin/env php
+
 <?php
-/**
- * Admin User Management Script
- * 
- * Usage:
- *   php create_admin.php
- * 
- * This script helps you create new admin users with secure password hashing.
- */
+
 
 require_once __DIR__ . '/config/database.php';
 
