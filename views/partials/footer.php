@@ -10,7 +10,6 @@
         <nav class="footer-nav">
             <ul>
                 <li><a href="/about.php">About Us</a></li>
-                <li><a href="/contact.php">Contact</a></li>
             </ul>
         </nav>
     </div>

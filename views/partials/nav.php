@@ -45,9 +45,6 @@ function ariaCurrent($page)
                 <li>
                     <a href="/about.php" class="nav-link <?= isActive('about.php') ?>" <?= ariaCurrent('about.php') ?>>About</a>
                 </li>
-                <li>
-                    <a href="/contact.php" class="nav-link <?= isActive('contact.php') ?>" <?= ariaCurrent('contact.php') ?>>Contact</a>
-                </li>
             </ul>
         </div>
     </nav>
