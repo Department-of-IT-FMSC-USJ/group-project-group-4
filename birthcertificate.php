@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once _DIR_ . '/config/database.php';
+require_once __DIR__ . '/config/database.php';
 
 
 if (!isset($_SESSION['birth_flow'])) {
@@ -151,4 +151,4 @@ $certificate = $_SESSION['birth_flow']['certificate'] ?? null;
 $order = $_SESSION['birth_flow']['order'] ?? null;
 $flowError = $_SESSION['birth_flow']['error'] ?? null;
 
-require _DIR_ . '/views/birthcertificate.view.php';
+require __DIR__ . '/views/birthcertificate.view.php';
