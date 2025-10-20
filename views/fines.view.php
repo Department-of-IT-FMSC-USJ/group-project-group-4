@@ -18,6 +18,28 @@ $title = 'Fine Settlement - OneID';
     </section>
 
     <section class="flow">
+        <!-- Fine Paid/Delivered Step -->
+        <div class="flow-step <?= $flowStep === 'done' ? 'is-active' : '' ?>" <?= $flowStep !== 'done' ? 'hidden' : '' ?>>
+            <h2>Fine Already Paid</h2>
+            <div class="fine-details">
+                <header class="fine-card">
+                    <div class="fine-card__meta">
+                        <span class="fine-card__label">Fine ID</span>
+                        <span class="fine-card__value"><?= htmlspecialchars($fine['fine_id'] ?? '—') ?></span>
+                    </div>
+                    <div class="fine-card__meta">
+                        <span class="fine-card__label">Status</span>
+                        <span class="fine-card__value">Completed</span>
+                    </div>
+                </header>
+                <div class="fine-total">
+                    <span class="fine-total__label">No fine to pay.</span>
+                </div>
+                <div class="delivery-message" style="margin-top:1rem; background:#e6f7e6; padding:1rem; border-radius:8px;">
+                    <strong>Your fine has been paid and will be delivered to your doorstep.</strong>
+                </div>
+            </div>
+        </div>
         <!-- Fine Lookup Step -->
         <div class="flow-step <?= $flowStep === 'lookup' ? 'is-active' : '' ?>" <?= $flowStep !== 'lookup' ? 'hidden' : '' ?>>
             <h2>Enter Fine ID</h2>
@@ -39,7 +61,7 @@ $title = 'Fine Settlement - OneID';
             </form>
         </div>
 
-      
+
         <section class="flow-step <?= $flowStep === 'details' ? 'is-active' : '' ?>" <?= $flowStep !== 'details' ? 'hidden' : '' ?>>
             <h2>Review Fine Details</h2>
             <p>Confirm the details below before proceeding to payment.</p>
@@ -113,7 +135,7 @@ $title = 'Fine Settlement - OneID';
             </div>
         </section>
 
-      
+
         <section class="flow-step <?= $flowStep === 'payment' ? 'is-active' : '' ?>" <?= $flowStep !== 'payment' ? 'hidden' : '' ?>>
             <h2>Payment Information</h2>
             <p>Settle the outstanding fine using a secure payment method.</p>

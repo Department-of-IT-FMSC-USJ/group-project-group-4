@@ -1,164 +1,168 @@
 <?php
-$title = 'Fine Settlement - OneID';
-?>
-<?php require __DIR__ . '/partials/head.php'; ?>
-<?php require __DIR__ . '/partials/nav.php'; ?>
 
-<main class="page fines-page">
-    <section class="page-intro" aria-labelledby="fines-heading">
-        <h1 id="fines-heading">Fine Settlement</h1>
-        <p>Review the details of your traffic fines and complete payments securely.</p>
+session_start();
+require_once __DIR__ . '/config/database.php';
 
-        <?php if ($flowStep !== 'lookup'): ?>
-            <form method="POST" style="display: inline;">
-                <input type="hidden" name="action" value="reset">
-                <button type="submit" class="btn-secondary" style="background: #6c757d; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">← Start Over</button>
-            </form>
-        <?php endif; ?>
-    </section>
 
-    <section class="flow">
-      
-        <div class="flow-step <?= $flowStep === 'lookup' ? 'is-active' : '' ?>" <?= $flowStep !== 'lookup' ? 'hidden' : '' ?>>
-            <h2>Enter Fine ID</h2>
-            <p>Provide the Fine ID, Vehicle Number, or License Number to look up your fine.</p>
+if (!isset($_SESSION['fines_flow'])) {
+    $_SESSION['fines_flow'] = [
+        'step' => 'lookup',
+        'fine' => null,
+        'order' => null,
+        'error' => null,
+    ];
+}
 
-            <form class="fine-form" method="POST">
-                <input type="hidden" name="action" value="lookup_fine">
 
-                <label for="fineIdInput">Fine ID / Vehicle Number / License Number</label>
-                <input type="text" id="fineIdInput" name="fineId" placeholder="Enter Fine ID, Vehicle No, or License No" autocomplete="off" required>
+function computeFineOrder(array $fine): array
+{
 
-                <?php if ($flowError && $flowStep === 'lookup'): ?>
-                    <p class="error-message"><?= htmlspecialchars($flowError) ?></p>
-                <?php endif; ?>
+    $fineAmount = (float)($fine['fine_amount'] ?? $fine['amount'] ?? 0);
+    $serviceFee = 250.00;
+    $postalFee = 100.00;
 
-                <p class="form-hint"><strong>CAR-1234</strong> (Vehicle), or <strong>DL123456</strong> (License)</p>
+    $subtotal = $fineAmount + $serviceFee + $postalFee;
+    $tax = round($subtotal * 0.18, 2);
+    $total = $subtotal + $tax;
 
-                <button type="submit" class="btn">Check fine</button>
-            </form>
-        </div>
+    return [
+        'fineAmount' => $fineAmount,
+        'serviceFee' => $serviceFee,
+        'postalFee' => $postalFee,
+        'subtotal' => $subtotal,
+        'tax' => $tax,
+        'total' => $total,
+    ];
+}
 
-       
-        <section class="flow-step <?= $flowStep === 'details' ? 'is-active' : '' ?>" <?= $flowStep !== 'details' ? 'hidden' : '' ?>>
-            <h2>Review Fine Details</h2>
-            <p>Confirm the details below before proceeding to payment.</p>
 
-            <?php if ($fine): ?>
-                <div class="fine-details">
-                    <header class="fine-card">
-                        <div class="fine-card__meta">
-                            <span class="fine-card__label">Fine ID</span>
-                            <span class="fine-card__value"><?= htmlspecialchars($fine['fine_id'] ?? '—') ?></span>
-                        </div>
-                        <div class="fine-card__meta">
-                            <span class="fine-card__label">Date</span>
-                            <span class="fine-card__value"><?= isset($fine['issued_at']) ? date('M d, Y', strtotime($fine['issued_at'])) : '—' ?></span>
-                        </div>
-                        <div class="fine-card__meta">
-                            <span class="fine-card__label">Driver</span>
-                            <span class="fine-card__value"><?= htmlspecialchars($fine['driver_name'] ?? '—') ?></span>
-                        </div>
-                        <div class="fine-card__meta">
-                            <span class="fine-card__label">Vehicle</span>
-                            <span class="fine-card__value"><?= htmlspecialchars($fine['vehicle_number'] ?? '—') ?></span>
-                        </div>
-                        <p class="fine-card__violation"><?= htmlspecialchars($fine['mistake'] ?? 'No violation details') ?></p>
-                        <p class="fine-card__location"><?= htmlspecialchars($fine['place'] ?? '—') ?></p>
-                        <div class="fine-card__meta">
-                            <span class="fine-card__label">Status</span>
-                            <span class="fine-card__value"><?= htmlspecialchars($fine['payment_status'] ?? 'Pending') ?></span>
-                        </div>
-                    </header>
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'] ?? '';
 
-                    <div class="fine-total">
-                        <span class="fine-total__label">Amount Due</span>
-                        <span class="fine-total__value">LKR <?= number_format($order['fineAmount'] ?? 0, 2) ?></span>
-                    </div>
-                </div>
+    switch ($action) {
+        case 'lookup_fine':
+            try {
+                $input = trim($_POST['fineId'] ?? '');
+                if ($input === '') {
+                    $_SESSION['fines_flow']['error'] = 'Please enter a Fine ID, Vehicle Number, or License Number.';
+                    $_SESSION['fines_flow']['step'] = 'lookup';
+                    header('Location: /fines.php');
+                    exit;
+                }
 
-                <dl class="fine-breakdown">
-                    <div class="fine-breakdown__row">
-                        <dt>Fine Amount</dt>
-                        <dd>LKR <?= number_format($order['fineAmount'] ?? 0, 2) ?></dd>
-                    </div>
-                    <div class="fine-breakdown__row">
-                        <dt>Service Charge</dt>
-                        <dd>LKR <?= number_format($order['serviceFee'] ?? 0, 2) ?></dd>
-                    </div>
-                    <div class="fine-breakdown__row">
-                        <dt>Postal Charge</dt>
-                        <dd>LKR <?= number_format($order['postalFee'] ?? 0, 2) ?></dd>
-                    </div>
-                    <div class="fine-breakdown__row">
-                        <dt>Subtotal</dt>
-                        <dd>LKR <?= number_format($order['subtotal'] ?? 0, 2) ?></dd>
-                    </div>
-                    <div class="fine-breakdown__row">
-                        <dt>Tax (18%)</dt>
-                        <dd>LKR <?= number_format($order['tax'] ?? 0, 2) ?></dd>
-                    </div>
-                    <div class="fine-breakdown__row fine-breakdown__row--total">
-                        <dt>Total Due</dt>
-                        <dd>LKR <?= number_format($order['total'] ?? 0, 2) ?></dd>
-                    </div>
-                </dl>
-            <?php endif; ?>
 
-            <div class="flow-control">
-                <form method="POST">
-                    <input type="hidden" name="action" value="proceed_to_payment">
-                    <button type="submit" class="btn">Proceed to Payment</button>
-                </form>
-            </div>
-        </section>
+                $fine = null;
 
-        <section class="flow-step <?= $flowStep === 'payment' ? 'is-active' : '' ?>" <?= $flowStep !== 'payment' ? 'hidden' : '' ?>>
-            <h2>Payment Information</h2>
-            <p>Settle the outstanding fine using a secure payment method.</p>
+                if (ctype_digit($input)) {
+                    $stmt = $pdo->prepare("SELECT f.*, m.mistake, m.amount AS fine_amount, p.status AS payment_status, f.payment_id
+                                            FROM fines f
+                                            LEFT JOIN mistakes m ON f.mistake_id = m.mistake_id
+                                            LEFT JOIN payments p ON f.payment_id = p.payment_id
+                                            WHERE f.fine_id = ?");
+                    $stmt->execute([$input]);
+                    $fine = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+                }
 
-            <?php if ($order): ?>
-                <div class="order-summary">
-                    <h3>Order Summary</h3>
-                    <dl class="order-summary__list">
-                        <div class="order-summary__row">
-                            <dt>Fine</dt>
-                            <dd>LKR <?= number_format($order['fineAmount'], 2) ?></dd>
-                        </div>
-                        <div class="order-summary__row">
-                            <dt>Service Charge</dt>
-                            <dd>LKR <?= number_format($order['serviceFee'], 2) ?></dd>
-                        </div>
-                        <div class="order-summary__row">
-                            <dt>Postal Charge</dt>
-                            <dd>LKR <?= number_format($order['postalFee'], 2) ?></dd>
-                        </div>
-                        <div class="order-summary__row">
-                            <dt>Subtotal</dt>
-                            <dd>LKR <?= number_format($order['subtotal'], 2) ?></dd>
-                        </div>
-                        <div class="order-summary__row">
-                            <dt>Tax (18%)</dt>
-                            <dd>LKR <?= number_format($order['tax'], 2) ?></dd>
-                        </div>
-                        <div class="order-summary__row order-summary__total">
-                            <dt>Total</dt>
-                            <dd>LKR <?= number_format($order['total'], 2) ?></dd>
-                        </div>
-                    </dl>
-                </div>
-            <?php endif; ?>
+                if (!$fine) {
 
-            <?php
-            $paymentData = [
-                'fine_id' => $fine['fine_id'] ?? '',
-                'order_total' => $order['total'] ?? 0,
-                'success_variant' => 'fine'
+                    $stmt = $pdo->prepare("SELECT f.*, m.mistake, m.amount AS fine_amount, p.status AS payment_status, f.payment_id
+                                            FROM fines f
+                                            LEFT JOIN mistakes m ON f.mistake_id = m.mistake_id
+                                            LEFT JOIN payments p ON f.payment_id = p.payment_id
+                                            WHERE f.vehicle_number = ?
+                                            ORDER BY f.issued_at DESC
+                                            LIMIT 1");
+                    $stmt->execute([$input]);
+                    $fine = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+                }
+
+                if (!$fine) {
+
+                    $stmt = $pdo->prepare("SELECT f.*, m.mistake, m.amount AS fine_amount, p.status AS payment_status, f.payment_id
+                                            FROM fines f
+                                            LEFT JOIN mistakes m ON f.mistake_id = m.mistake_id
+                                            LEFT JOIN payments p ON f.payment_id = p.payment_id
+                                            WHERE f.license_number = ?
+                                            ORDER BY f.issued_at DESC
+                                            LIMIT 1");
+                    $stmt->execute([$input]);
+                    $fine = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+                }
+
+                if (!$fine) {
+                    $_SESSION['fines_flow']['error'] = 'No matching fine found. Please check your input and try again.';
+                    $_SESSION['fines_flow']['step'] = 'lookup';
+                    $_SESSION['fines_flow']['fine'] = null;
+                    $_SESSION['fines_flow']['order'] = null;
+                } else {
+
+                    if ($fine['payment_status'] === 'Completed') {
+                        $_SESSION['fines_flow']['fine'] = $fine;
+                        $_SESSION['fines_flow']['order'] = null;
+                        $_SESSION['fines_flow']['error'] = null;
+                        $_SESSION['fines_flow']['step'] = 'done';
+                    } else {
+                        $order = computeFineOrder($fine);
+                        $_SESSION['fines_flow']['fine'] = $fine;
+                        $_SESSION['fines_flow']['order'] = $order;
+                        $_SESSION['fines_flow']['error'] = null;
+                        $_SESSION['fines_flow']['step'] = 'details';
+                    }
+                }
+            } catch (Throwable $e) {
+                $_SESSION['fines_flow']['error'] = 'Fine lookup failed. Please try again later.';
+                $_SESSION['fines_flow']['step'] = 'lookup';
+            }
+            header('Location: /fines.php');
+            exit;
+
+        case 'proceed_to_payment':
+            $_SESSION['fines_flow']['step'] = 'payment';
+            header('Location: /fines.php');
+            exit;
+
+
+        case 'payment_done':
+
+            $fineId = $_SESSION['fines_flow']['fine']['fine_id'] ?? null;
+            $paymentId = intval($_POST['payment_id'] ?? 0);
+            if ($fineId && $paymentId) {
+                $stmt = $pdo->prepare("UPDATE fines SET payment_id = ? WHERE fine_id = ?");
+                $stmt->execute([$paymentId, $fineId]);
+                // Update session state to reflect paid
+                $stmt = $pdo->prepare("SELECT f.*, m.mistake, m.amount AS fine_amount, p.status AS payment_status, f.payment_id
+                                        FROM fines f
+                                        LEFT JOIN mistakes m ON f.mistake_id = m.mistake_id
+                                        LEFT JOIN payments p ON f.payment_id = p.payment_id
+                                        WHERE f.fine_id = ?");
+                $stmt->execute([$fineId]);
+                $fine = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+                $_SESSION['fines_flow']['fine'] = $fine;
+                $_SESSION['fines_flow']['order'] = null;
+                $_SESSION['fines_flow']['error'] = null;
+                $_SESSION['fines_flow']['step'] = 'done';
+            }
+            header('Location: /fines.php');
+            exit;
+
+        case 'reset':
+            $_SESSION['fines_flow'] = [
+                'step' => 'lookup',
+                'fine' => null,
+                'order' => null,
+                'error' => null,
             ];
-            require __DIR__ . '/components/payment-form.php';
-            ?>
-        </section>
-    </section>
-</main>
+            header('Location: /fines.php');
+            exit;
+    }
+}
 
-<?php require __DIR__ . '/partials/footer.php'; ?>
+
+
+$flowStep = $_SESSION['fines_flow']['step'] ?? 'lookup';
+$fine = $_SESSION['fines_flow']['fine'] ?? null;
+$order = $_SESSION['fines_flow']['order'] ?? null;
+$flowError = $_SESSION['fines_flow']['error'] ?? null;
+
+
+require __DIR__ . '/views/fines.view.php';
