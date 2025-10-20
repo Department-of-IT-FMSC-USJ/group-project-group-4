@@ -19,7 +19,7 @@
         <!-- Notice Step -->
         <div class="flow-step <?= $flowStep === 'notice' ? 'is-active' : '' ?>" <?= $flowStep !== 'notice' ? 'hidden' : '' ?>>
             <section class="notice-card" aria-labelledby="notice-card-heading-nic">
-                <div class="notice-card__icon" aria-hidden="true">⚠️</div>
+                <div class="notice-card__icon" aria-hidden="true">⚠</div>
                 <div class="notice-card__content">
                     <h3 id="notice-card-heading-nic" class="notice-header">Important Notice</h3>
                     <p>This service is provided only for applying for a replacement NIC in the event of a lost card.</p>
@@ -47,18 +47,11 @@
             <h2>Identity Card Application</h2>
             <p>Please complete all required sections carefully. The information provided will be used to verify your identity.</p>
 
-            <?php require __DIR__ . '/components/nic-form.php'; ?>
-
             <?php if ($flowError && $flowStep === 'application'): ?>
-                <p class="error-message"><?= htmlspecialchars($flowError) ?></p>
+                <p class="error-message" style="color: red; padding: 1rem; background: #fee; border-radius: 6px; margin-bottom: 1rem;"><?= htmlspecialchars($flowError) ?></p>
             <?php endif; ?>
 
-            <div class="flow-control">
-                <form method="POST">
-                    <input type="hidden" name="action" value="submit_application">
-                    <button type="submit" class="btn">Submit Application</button>
-                </form>
-            </div>
+            <?php require __DIR__ . '/components/nic-form.php'; ?>
         </section>
 
         <!-- Pricing Step -->
@@ -67,7 +60,10 @@
             <p>The replacement fee for a National Identity Card is fixed.</p>
 
             <?php if ($applicationId): ?>
-                <p class="success-message">Application submitted successfully! Your application ID is: <strong><?= htmlspecialchars($applicationId) ?></strong></p>
+                <div class="success-message" style="background: #d4edda; color: #155724; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #28a745;">
+                    <h3 style="margin: 0 0 0.5rem 0;">Application Submitted Successfully!</h3>
+                    <p style="margin: 0;">Your application ID is: <strong>#<?= htmlspecialchars($applicationId) ?></strong></p>
+                </div>
             <?php endif; ?>
 
             <div class="pricing-summary pricing-summary--fixed">
@@ -79,7 +75,7 @@
                     <span>Service Charge</span>
                     <span>LKR 250.00</span>
                 </div>
-                <div class="pricing-summary__row pricing-summary__total">
+                <div class="pricing-summary_row pricing-summary_total">
                     <span>Total</span>
                     <span>LKR 1,750.00</span>
                 </div>
@@ -109,7 +105,7 @@
                         <dt>Service Charge</dt>
                         <dd>LKR 250.00</dd>
                     </div>
-                    <div class="order-summary__row order-summary__total">
+                    <div class="order-summary_row order-summary_total">
                         <dt>Total</dt>
                         <dd>LKR 1,750.00</dd>
                     </div>

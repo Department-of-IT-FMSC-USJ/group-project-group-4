@@ -2,14 +2,20 @@
 
 
 // Include required files
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../include/functions.php';
+require_once _DIR_ . '/../config/database.php';
+require_once _DIR_ . '/../include/functions.php';
 
 // Get HTTP method
 $method = $_SERVER['REQUEST_METHOD'];
 
 // Route requests
 try {
+    // Check if this is a PDF download request
+    if ($method === 'GET' && isset($_GET['pdf'])) {
+        downloadPDF();
+        exit;
+    }
+
     switch ($method) {
         case 'POST':
             submitApplication();
@@ -108,12 +114,36 @@ function submitApplication()
 
     $stmt = $pdo->prepare($sql);
     if ($stmt->execute([
-        $district, $divSec, $gramaNila,
-        $familyName, $givenName, $surname, $sex, $civilStatus, $profession, $dob,
-        $birthCertNo, $placeOfBirth, $birthDivision, $birthDistrict,
-        $permHouse, $permBuildingType, $permStreet, $permCity, $permPostal,
-        $postHouse, $postBuildingType, $postStreet, $postCity, $postPostal,
-        $phone, $email, $purpose, $fakePdf, $fakePdf, $photoLink
+        $district,
+        $divSec,
+        $gramaNila,
+        $familyName,
+        $givenName,
+        $surname,
+        $sex,
+        $civilStatus,
+        $profession,
+        $dob,
+        $birthCertNo,
+        $placeOfBirth,
+        $birthDivision,
+        $birthDistrict,
+        $permHouse,
+        $permBuildingType,
+        $permStreet,
+        $permCity,
+        $permPostal,
+        $postHouse,
+        $postBuildingType,
+        $postStreet,
+        $postCity,
+        $postPostal,
+        $phone,
+        $email,
+        $purpose,
+        $fakePdf,
+        $fakePdf,
+        $photoLink
     ])) {
         $applicationId = $pdo->lastInsertId();
         sendResponse(true, 'NIC application submitted successfully', [
@@ -127,7 +157,7 @@ function submitApplication()
 }
 
 
- 
+
 function getApplication($id)
 {
     global $pdo;
@@ -190,3 +220,81 @@ function updateApplicationPayment()
     }
 }
 
+
+function deleteApplication()
+{
+    global $pdo;
+
+    $input = get_request_data();
+    $applicationId = $input['application_id'] ?? $input['applicationId'] ?? null;
+    if (!$applicationId) {
+        sendResponse(false, "Application ID required");
+    }
+    $stmt = $pdo->prepare("DELETE FROM identity_card_applications WHERE application_id = ?");
+    if ($stmt->execute([$applicationId])) {
+        if ($stmt->rowCount() > 0) {
+            sendResponse(true, "Application deleted");
+        } else {
+            sendResponse(false, "Application not found");
+        }
+    } else {
+        sendResponse(false, "Failed to delete application");
+    }
+}
+
+
+function downloadPDF()
+{
+    global $pdo;
+
+    $applicationId = $_GET['id'] ?? null;
+    $type = $_GET['type'] ?? null;
+
+    if (!$applicationId || !$type) {
+        http_response_code(400);
+        die("Missing required parameters: id and type");
+    }
+
+    // Validate type
+    $validTypes = ['birth_certificate', 'police_report', 'photo'];
+    if (!in_array($type, $validTypes)) {
+        http_response_code(400);
+        die("Invalid document type. Valid types: " . implode(', ', $validTypes));
+    }
+
+    // Map type to database column
+    $columnMap = [
+        'birth_certificate' => 'birth_certificate_pdf',
+        'police_report' => 'police_report_doc',
+        'photo' => 'photo_pdf'
+    ];
+
+    $column = $columnMap[$type];
+
+    // Fetch the PDF from database
+    $sql = "SELECT {$column}, family_name, name_ FROM identity_card_applications WHERE application_id = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$applicationId]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$result || empty($result[$column])) {
+        http_response_code(404);
+        die("Document not found");
+    }
+
+    // Generate filename
+    $name = $result['family_name'] . '' . $result['name'];
+    $name = preg_replace('/[^a-zA-Z0-9_-]/', '_', $name);
+    $filename = $name . '' . $type . '' . $applicationId . '.pdf';
+
+    // Set headers for PDF download
+    header('Content-Type: application/pdf');
+    header('Content-Disposition: inline; filename="' . $filename . '"');
+    header('Content-Length: ' . strlen($result[$column]));
+    header('Cache-Control: private, max-age=0, must-revalidate');
+    header('Pragma: public');
+
+    // Output the PDF
+    echo $result[$column];
+    exit;
+}
