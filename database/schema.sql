@@ -1,7 +1,7 @@
 CREATE DATABASE IF NOT EXISTS OneID;
 USE OneID;
 
--- payment table (Nayanthi)
+-- Payment table Nayanthi
 CREATE TABLE payments (
     payment_id INT AUTO_INCREMENT PRIMARY KEY,
     amount DECIMAL(10, 2) NOT NULL,
@@ -9,15 +9,14 @@ CREATE TABLE payments (
     status ENUM('Pending', 'Completed', 'Failed', 'Cancelled') DEFAULT 'Pending'
 );
 
--- mistake table (Harsha)
+-- Mistake table Harsha
 CREATE TABLE mistakes (
     mistake_id INT AUTO_INCREMENT PRIMARY KEY,
     mistake VARCHAR(255) NOT NULL,
     amount DECIMAL(10, 2) NOT NULL
 );
 
-
--- fine table (Tharuka)
+-- Fine table Tharuka
 CREATE TABLE fines (
     fine_id INT AUTO_INCREMENT PRIMARY KEY,
     vehicle_number VARCHAR(15) NOT NULL,
@@ -27,14 +26,14 @@ CREATE TABLE fines (
     driver_address VARCHAR(255) NOT NULL,
     issued_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     due_at TIMESTAMP NULL,
+    processed_by_admin BOOLEAN DEFAULT FALSE,
     payment_id INT NULL,
     mistake_id INT NULL,
     FOREIGN KEY (payment_id) REFERENCES payments(payment_id),
     FOREIGN KEY (mistake_id) REFERENCES mistakes(mistake_id)
 );
 
-
--- bc table (Dushan)
+-- Birth Certificates table Dushan
 CREATE TABLE birth_certificates (
     birth_certificate_number VARCHAR(50) PRIMARY KEY,
     date_of_birth DATE NOT NULL,
@@ -43,11 +42,12 @@ CREATE TABLE birth_certificates (
     father_place_of_birth VARCHAR(100),
     mother_date_of_birth DATE,
     mother_place_of_birth VARCHAR(100),
+    processed_by_admin BOOLEAN DEFAULT FALSE,
     payment_id INT NULL,
     FOREIGN KEY (payment_id) REFERENCES payments(payment_id)
 );
 
--- nic application table (Inshab)
+-- Identity Card Applications table Inshab
 CREATE TABLE identity_card_applications (
     application_id INT AUTO_INCREMENT PRIMARY KEY,
     district VARCHAR(100) NOT NULL,
@@ -89,16 +89,29 @@ CREATE TABLE identity_card_applications (
     police_station_name VARCHAR(100),
     police_report_date DATE,
     birth_certificate_pdf LONGBLOB NOT NULL,
-    police_report_doc LONGBLOB,
+    police_report_doc LONGBLOB NOT NULL,
     photo_link VARCHAR(255) NOT NULL,
-    photo_pdf LONGBLOB NOT NULL,
+    photo_pdf LONGBLOB,
+    processed_by_admin BOOLEAN DEFAULT FALSE,
     application_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     payment_id INT NULL,
     FOREIGN KEY (payment_id) REFERENCES payments(payment_id)
 );
 
+-- Admins table Harsha
+CREATE TABLE admins (
+    admin_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    full_name VARCHAR(100),
+    email VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_login TIMESTAMP NULL,
+    is_active BOOLEAN DEFAULT TRUE
+);
 
---insert trafic mistakes
+
+-- Insert traffic violation mistakes
 INSERT INTO mistakes (mistake, amount) VALUES
 ('Not displaying identification plates', 1000),
 ('Not wearing helmets', 1000),
