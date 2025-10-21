@@ -1042,6 +1042,17 @@ button#submitBtn.is-disabled {
   color: #6c757d;
   cursor: not-allowed;
 }
+.error-message {
+  color: #dc3545 !important;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 8px 0 4px;
+  padding: 8px 12px;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  display: block;
+}
 
 .warn-msg {
   background-color: #fef3c7;
@@ -1066,11 +1077,11 @@ button#submitBtn.is-disabled {
   margin-bottom: 8px;
 }
 
-.error-message {
+/* .error-message {
   color: #dc3545;
   font-size: 12px;
   margin: -8px 0 4px;
-}
+} */
 
 .alert-success {
   background-color: #d4edda;
