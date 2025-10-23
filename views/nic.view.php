@@ -59,12 +59,8 @@
             <h2>Pricing</h2>
             <p>The replacement fee for a National Identity Card is fixed.</p>
 
-            <?php if ($applicationId): ?>
-                <div class="success-message" style="background: #d4edda; color: #155724; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #28a745;">
-                    <h3 style="margin: 0 0 0.5rem 0;">Application Submitted Successfully!</h3>
-                    <p style="margin: 0;">Your application ID is: <strong>#<?= htmlspecialchars($applicationId) ?></strong></p>
-                </div>
-            <?php endif; ?>
+            <?php // Success message moved to payment-success page after completed payment 
+            ?>
 
             <div class="pricing-summary pricing-summary--fixed">
                 <div class="pricing-summary__row">

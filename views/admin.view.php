@@ -246,7 +246,7 @@
 
         <div class="tabs-container">
             <div class="tabs-nav">
-                <button class="tab-button active" onclick="switchTab('nic')">
+                <button class="tab-button" onclick="switchTab('nic')">
                     NIC Applications (<?= count($nicApplications) ?>)
                 </button>
                 <button class="tab-button" onclick="switchTab('birth')">
@@ -258,7 +258,7 @@
             </div>
 
             <!-- NIC Applications Tab -->
-            <div id="nic-tab" class="tab-content active">
+            <div id="nic-tab" class="tab-content">
                 <?php if (empty($nicApplications)): ?>
                     <div class="empty-state">
                         <h3>No NIC Applications</h3>
@@ -275,7 +275,6 @@
                                     <th>Birth Cert No</th>
                                     <th>Contact</th>
                                     <th>Documents</th>
-                                    <th>Payment</th>
                                     <th>Date</th>
                                 </tr>
                             </thead>
@@ -283,16 +282,12 @@
                                 <?php foreach ($nicApplications as $app): ?>
                                     <tr<?= $app['processed_by_admin'] ? ' class="processed-row"' : '' ?>>
                                         <td>
-                                            <?php if ($app['payment_status'] === 'Completed'): ?>
-                                                <input type="checkbox"
-                                                    class="processed-checkbox"
-                                                    data-type="nic"
-                                                    data-id="<?= htmlspecialchars($app['application_id']) ?>"
-                                                    <?= $app['processed_by_admin'] ? 'checked' : '' ?>
-                                                    title="Mark as processed">
-                                            <?php else: ?>
-                                                <span class="no-checkbox">—</span>
-                                            <?php endif; ?>
+                                            <input type="checkbox"
+                                                class="processed-checkbox"
+                                                data-type="nic"
+                                                data-id="<?= htmlspecialchars($app['application_id']) ?>"
+                                                <?= $app['processed_by_admin'] ? 'checked' : '' ?>
+                                                title="Mark as processed">
                                         </td>
                                         <td>
                                             <span class="app-id">#<?= htmlspecialchars($app['application_id']) ?></span>
@@ -331,18 +326,6 @@
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <?php if ($app['payment_status']): ?>
-                                                <span class="status-badge status-<?= strtolower($app['payment_status']) ?>">
-                                                    <?= htmlspecialchars($app['payment_status']) ?>
-                                                </span>
-                                                <?php if ($app['payment_amount']): ?>
-                                                    <div class="text-xs text-muted">LKR <?= number_format($app['payment_amount'], 2) ?></div>
-                                                <?php endif; ?>
-                                            <?php else: ?>
-                                                <span class="status-badge status-pending">Pending</span>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td>
                                             <div class="text-xs"><?= htmlspecialchars(date('d M Y', strtotime($app['application_date']))) ?></div>
                                             <div class="text-xs text-muted"><?= htmlspecialchars(date('h:i A', strtotime($app['application_date']))) ?></div>
                                         </td>
@@ -372,7 +355,6 @@
                                     <th>Place of Birth</th>
                                     <th>Father DOB</th>
                                     <th>Mother DOB</th>
-                                    <th>Payment</th>
                                     <th>Date</th>
                                 </tr>
                             </thead>
@@ -380,34 +362,18 @@
                                 <?php foreach ($birthCertificates as $cert): ?>
                                     <tr<?= $cert['processed_by_admin'] ? ' class="processed-row"' : '' ?>>
                                         <td>
-                                            <?php if ($cert['payment_status'] === 'Completed'): ?>
-                                                <input type="checkbox"
-                                                    class="processed-checkbox"
-                                                    data-type="birth"
-                                                    data-id="<?= htmlspecialchars($cert['birth_certificate_number']) ?>"
-                                                    <?= $cert['processed_by_admin'] ? 'checked' : '' ?>
-                                                    title="Mark as processed">
-                                            <?php else: ?>
-                                                <span class="no-checkbox">—</span>
-                                            <?php endif; ?>
+                                            <input type="checkbox"
+                                                class="processed-checkbox"
+                                                data-type="birth"
+                                                data-id="<?= htmlspecialchars($cert['birth_certificate_number']) ?>"
+                                                <?= $cert['processed_by_admin'] ? 'checked' : '' ?>
+                                                title="Mark as processed">
                                         </td>
                                         <td class="app-id"><?= htmlspecialchars($cert['birth_certificate_number']) ?></td>
                                         <td><?= htmlspecialchars(date('d M Y', strtotime($cert['date_of_birth']))) ?></td>
                                         <td><?= htmlspecialchars($cert['place_of_birth']) ?></td>
                                         <td><?= $cert['father_date_of_birth'] ? htmlspecialchars(date('d M Y', strtotime($cert['father_date_of_birth']))) : '-' ?></td>
                                         <td><?= $cert['mother_date_of_birth'] ? htmlspecialchars(date('d M Y', strtotime($cert['mother_date_of_birth']))) : '-' ?></td>
-                                        <td>
-                                            <?php if ($cert['payment_status']): ?>
-                                                <span class="status-badge status-<?= strtolower($cert['payment_status']) ?>">
-                                                    <?= htmlspecialchars($cert['payment_status']) ?>
-                                                </span>
-                                                <?php if ($cert['payment_amount']): ?>
-                                                    <div class="text-xs text-muted">LKR <?= number_format($cert['payment_amount'], 2) ?></div>
-                                                <?php endif; ?>
-                                            <?php else: ?>
-                                                <span class="status-badge status-pending">Pending</span>
-                                            <?php endif; ?>
-                                        </td>
                                         <td>
                                             <?php if ($cert['payment_date']): ?>
                                                 <div class="text-xs"><?= htmlspecialchars(date('d M Y', strtotime($cert['payment_date']))) ?></div>
@@ -504,6 +470,19 @@
 </main>
 
 <script>
+    // Function to get active tab from localStorage or URL hash
+    function getActiveTab() {
+        const urlHash = window.location.hash.substring(1);
+        const storedTab = localStorage.getItem('adminActiveTab');
+        return urlHash || storedTab || 'nic';
+    }
+
+    // Function to set active tab
+    function setActiveTab(tabName) {
+        localStorage.setItem('adminActiveTab', tabName);
+        window.location.hash = tabName;
+    }
+
     function switchTab(tabName) {
         // Hide all tab contents
         document.querySelectorAll('.tab-content').forEach(content => {
@@ -520,7 +499,40 @@
 
         // Add active class to clicked button
         event.target.classList.add('active');
+
+        // Save active tab
+        setActiveTab(tabName);
     }
+
+    // Restore active tab on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const activeTab = getActiveTab();
+
+        // Hide all tabs first
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.remove('active');
+        });
+
+        // Show the active tab
+        const tabContent = document.getElementById(activeTab + '-tab');
+        if (tabContent) {
+            tabContent.classList.add('active');
+        }
+
+        // Find and activate the corresponding button
+        const buttons = document.querySelectorAll('.tab-button');
+        buttons.forEach(button => {
+            const buttonText = button.textContent.toLowerCase();
+            if ((activeTab === 'nic' && buttonText.includes('nic')) ||
+                (activeTab === 'birth' && buttonText.includes('birth')) ||
+                (activeTab === 'fines' && buttonText.includes('fines'))) {
+                button.classList.add('active');
+            }
+        });
+    });
 
     // Handle processed checkbox changes
     document.querySelectorAll('.processed-checkbox').forEach(checkbox => {
@@ -553,6 +565,9 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
+                        // Save current tab before reload
+                        const currentTab = getActiveTab();
+                        setActiveTab(currentTab);
                         // Reload the page to show the item moved to bottom with strikethrough
                         location.reload();
                     } else {

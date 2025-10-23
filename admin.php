@@ -93,7 +93,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 // Get filter
 $filter = $_GET['filter'] ?? 'all';
 
-// Fetch all NIC applications (Completed first, then by date, processed items at bottom)
+// Fetch all NIC applications (FIFO: oldest unprocessed first; processed items at bottom)
 $sqlNic = "SELECT 
             ia.application_id,
             ia.family_name,
@@ -110,24 +110,17 @@ $sqlNic = "SELECT
             p.status as payment_status,
             p.amount as payment_amount,
             CASE 
-                WHEN p.status IS NULL THEN 1
-                WHEN p.status = 'Pending' THEN 1
-                WHEN p.status = 'Completed' THEN 0
-                WHEN p.status = 'Failed' THEN 2
-                ELSE 3
-            END as status_order,
-            CASE 
                 WHEN ia.processed_by_admin = 1 THEN 1
                 ELSE 0
             END as processed_order
         FROM identity_card_applications ia
         LEFT JOIN payments p ON ia.payment_id = p.payment_id
-        ORDER BY processed_order ASC, status_order ASC, ia.application_date DESC";
+        ORDER BY processed_order ASC, ia.application_date ASC";
 
 $stmtNic = $pdo->query($sqlNic);
 $nicApplications = $stmtNic->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch all birth certificate applications (Completed first, then by date, processed items at bottom)
+// Fetch all birth certificate applications (FIFO: oldest unprocessed first; processed items at bottom)
 $sqlBirth = "SELECT 
             bc.birth_certificate_number,
             bc.date_of_birth,
@@ -139,19 +132,12 @@ $sqlBirth = "SELECT
             p.amount as payment_amount,
             p.payment_date,
             CASE 
-                WHEN p.status IS NULL THEN 1
-                WHEN p.status = 'Pending' THEN 1
-                WHEN p.status = 'Completed' THEN 0
-                WHEN p.status = 'Failed' THEN 2
-                ELSE 3
-            END as status_order,
-            CASE 
                 WHEN bc.processed_by_admin = 1 THEN 1
                 ELSE 0
             END as processed_order
         FROM birth_certificates bc
         LEFT JOIN payments p ON bc.payment_id = p.payment_id
-        ORDER BY processed_order ASC, status_order ASC, bc.date_of_birth DESC";
+        ORDER BY processed_order ASC, COALESCE(p.payment_date, bc.date_of_birth) ASC";
 
 $stmtBirth = $pdo->query($sqlBirth);
 $birthCertificates = $stmtBirth->fetchAll(PDO::FETCH_ASSOC);

@@ -1,4 +1,6 @@
-<form id="identity-form" method="post" action="#" class="nic-application nic-form-frame" novalidate>
+<?php $old = $_SESSION['nic_form_data'] ?? []; ?>
+<form id="identity-form" method="post" action="/nic.php" enctype="multipart/form-data" class="nic-application nic-form-frame" novalidate>
+    <input type="hidden" name="action" value="submit_application">
     <!-- Personal Information -->
     <section class="nic-section" aria-labelledby="personal-info">
         <header class="nic-section__header">
@@ -9,30 +11,30 @@
         <div class="nic-grid nic-grid--three">
             <div class="nic-field">
                 <label for="familyName">Family Name <span>*</span></label>
-                <input type="text" id="familyName" name="familyName" placeholder="Family Name" required>
+                <input type="text" id="familyName" name="familyName" placeholder="Family Name" required value="<?= htmlspecialchars($old['familyName'] ?? '') ?>">
             </div>
             <div class="nic-field">
                 <label for="givenName">Name <span>*</span></label>
-                <input type="text" id="givenName" name="givenName" placeholder="Name" required>
+                <input type="text" id="givenName" name="givenName" placeholder="Name" required value="<?= htmlspecialchars($old['givenName'] ?? '') ?>">
             </div>
             <div class="nic-field">
                 <label for="surname">Surname <span>*</span></label>
-                <input type="text" id="surname" name="surname" placeholder="Surname" required>
+                <input type="text" id="surname" name="surname" placeholder="Surname" required value="<?= htmlspecialchars($old['surname'] ?? '') ?>">
             </div>
         </div>
 
         <div class="nic-grid nic-grid--three">
             <div class="nic-field">
                 <label for="idFamilyName">ID Card Family Name</label>
-                <input type="text" id="idFamilyName" name="idFamilyName" placeholder="ID Card Family Name">
+                <input type="text" id="idFamilyName" name="idFamilyName" placeholder="ID Card Family Name" value="<?= htmlspecialchars($old['idFamilyName'] ?? '') ?>">
             </div>
             <div class="nic-field">
                 <label for="idGivenName">ID Card Name</label>
-                <input type="text" id="idGivenName" name="idGivenName" placeholder="ID Card Name">
+                <input type="text" id="idGivenName" name="idGivenName" placeholder="ID Card Name" value="<?= htmlspecialchars($old['idGivenName'] ?? '') ?>">
             </div>
             <div class="nic-field">
                 <label for="idSurname">ID Card Surname</label>
-                <input type="text" id="idSurname" name="idSurname" placeholder="ID Card Surname">
+                <input type="text" id="idSurname" name="idSurname" placeholder="ID Card Surname" value="<?= htmlspecialchars($old['idSurname'] ?? '') ?>">
             </div>
         </div>
 
@@ -41,31 +43,31 @@
                 <label for="sex">Sex <span>*</span></label>
                 <select name="sex" id="sex" required>
                     <option value="">Select Sex</option>
-                    <option>Male</option>
-                    <option>Female</option>
-                    <option>Other</option>
+                    <option <?= (isset($old['sex']) && $old['sex'] === 'Male') ? 'selected' : ''; ?>>Male</option>
+                    <option <?= (isset($old['sex']) && $old['sex'] === 'Female') ? 'selected' : ''; ?>>Female</option>
+                    <option <?= (isset($old['sex']) && $old['sex'] === 'Other') ? 'selected' : ''; ?>>Other</option>
                 </select>
             </div>
             <div class="nic-field nic-field--select">
                 <label for="civilStatus">Civil Status <span>*</span></label>
                 <select name="civilStatus" id="civilStatus" required>
                     <option value="">Select Civil Status</option>
-                    <option>Single</option>
-                    <option>Married</option>
-                    <option>Widowed</option>
-                    <option>Divorced</option>
+                    <option <?= (isset($old['civilStatus']) && $old['civilStatus'] === 'Single') ? 'selected' : ''; ?>>Single</option>
+                    <option <?= (isset($old['civilStatus']) && $old['civilStatus'] === 'Married') ? 'selected' : ''; ?>>Married</option>
+                    <option <?= (isset($old['civilStatus']) && $old['civilStatus'] === 'Widowed') ? 'selected' : ''; ?>>Widowed</option>
+                    <option <?= (isset($old['civilStatus']) && $old['civilStatus'] === 'Divorced') ? 'selected' : ''; ?>>Divorced</option>
                 </select>
             </div>
             <div class="nic-field">
                 <label for="profession">Profession <span>*</span></label>
-                <input type="text" id="profession" name="profession" placeholder="Profession" required>
+                <input type="text" id="profession" name="profession" placeholder="Profession" required value="<?= htmlspecialchars($old['profession'] ?? '') ?>">
             </div>
         </div>
 
         <div class="nic-grid nic-grid--two">
             <div class="nic-field">
                 <label for="dob">Date of Birth <span>*</span></label>
-                <input type="date" id="dob" name="dob" placeholder="yyyy-mm-dd" required>
+                <input type="date" id="dob" name="dob" placeholder="yyyy-mm-dd" required value="<?= htmlspecialchars($old['dob'] ?? '') ?>">
             </div>
         </div>
     </section>
@@ -79,37 +81,37 @@
         <div class="nic-grid nic-grid--two">
             <div class="nic-field">
                 <label for="birthCertNo">Birth Certificate Number <span>*</span></label>
-                <input type="text" id="birthCertNo" name="birthCertNo" placeholder="Birth certificate number" required>
+                <input type="text" id="birthCertNo" name="birthCertNo" placeholder="Birth certificate number" required value="<?= htmlspecialchars($old['birthCertNo'] ?? '') ?>">
             </div>
             <div class="nic-field">
                 <label for="placeOfBirth">Place of Birth <span>*</span></label>
-                <input type="text" id="placeOfBirth" name="placeOfBirth" placeholder="Place of Birth" required>
+                <input type="text" id="placeOfBirth" name="placeOfBirth" placeholder="Place of Birth" required value="<?= htmlspecialchars($old['placeOfBirth'] ?? '') ?>">
             </div>
         </div>
 
         <div class="nic-grid nic-grid--three">
             <div class="nic-field">
                 <label for="birthDivision">Birth Division <span>*</span></label>
-                <input type="text" id="birthDivision" name="birthDivision" placeholder="Birth Division" required>
+                <input type="text" id="birthDivision" name="birthDivision" placeholder="Birth Division" required value="<?= htmlspecialchars($old['birthDivision'] ?? '') ?>">
             </div>
             <div class="nic-field">
                 <label for="birthDistrict">Birth District <span>*</span></label>
-                <input type="text" id="birthDistrict" name="birthDistrict" placeholder="Birth District" required>
+                <input type="text" id="birthDistrict" name="birthDistrict" placeholder="Birth District" required value="<?= htmlspecialchars($old['birthDistrict'] ?? '') ?>">
             </div>
             <div class="nic-field">
                 <label for="countryOfBirth">Country of Birth</label>
-                <input type="text" id="countryOfBirth" name="countryOfBirth" placeholder="Sri Lanka" value="Sri Lanka">
+                <input type="text" id="countryOfBirth" name="countryOfBirth" placeholder="Sri Lanka" value="<?= htmlspecialchars($old['countryOfBirth'] ?? 'Sri Lanka') ?>">
             </div>
         </div>
 
         <div class="nic-grid nic-grid--two">
             <div class="nic-field">
                 <label for="cityOfBirth">City of Birth</label>
-                <input type="text" id="cityOfBirth" name="cityOfBirth" placeholder="City of Birth">
+                <input type="text" id="cityOfBirth" name="cityOfBirth" placeholder="City of Birth" value="<?= htmlspecialchars($old['cityOfBirth'] ?? '') ?>">
             </div>
             <div class="nic-field">
                 <label for="citizenshipCertificate">Citizenship Certificate Number</label>
-                <input type="text" id="citizenshipCertificate" name="citizenshipCertificate" placeholder="Certificate number">
+                <input type="text" id="citizenshipCertificate" name="citizenshipCertificate" placeholder="Certificate number" value="<?= htmlspecialchars($old['citizenshipCertificate'] ?? '') ?>">
             </div>
         </div>
     </section>
@@ -123,15 +125,15 @@
         <div class="nic-grid nic-grid--three">
             <div class="nic-field">
                 <label for="district">District <span>*</span></label>
-                <input type="text" id="district" name="district" placeholder="District" required>
+                <input type="text" id="district" name="district" placeholder="District" required value="<?= htmlspecialchars($old['district'] ?? '') ?>">
             </div>
             <div class="nic-field">
                 <label for="divSecretariat">Divisional Secretariat Division <span>*</span></label>
-                <input type="text" id="divSecretariat" name="divSecretariat" placeholder="Division" required>
+                <input type="text" id="divSecretariat" name="divSecretariat" placeholder="Division" required value="<?= htmlspecialchars($old['divSecretariat'] ?? '') ?>">
             </div>
             <div class="nic-field">
                 <label for="gramaNiladhari">Grama Niladari Number & Division <span>*</span></label>
-                <input type="text" id="gramaNiladhari" name="gramaNiladhari" placeholder="GN number / division" required>
+                <input type="text" id="gramaNiladhari" name="gramaNiladhari" placeholder="GN number / division" required value="<?= htmlspecialchars($old['gramaNiladhari'] ?? '') ?>">
             </div>
         </div>
     </section>
@@ -145,32 +147,32 @@
         <div class="nic-grid nic-grid--three">
             <div class="nic-field">
                 <label for="permHouse">House Name/Number <span>*</span></label>
-                <input type="text" id="permHouse" name="permHouse" placeholder="House name/number" required>
+                <input type="text" id="permHouse" name="permHouse" placeholder="House name/number" required value="<?= htmlspecialchars($old['permHouse'] ?? '') ?>">
             </div>
             <div class="nic-field nic-field--select">
                 <label for="permBuildingType">Building Type <span>*</span></label>
                 <select id="permBuildingType" name="permBuildingType" required>
                     <option value="">Select</option>
-                    <option>House</option>
-                    <option>Apartment</option>
-                    <option>Boarding</option>
-                    <option>Other</option>
+                    <option <?= (isset($old['permBuildingType']) && $old['permBuildingType'] === 'House') ? 'selected' : ''; ?>>House</option>
+                    <option <?= (isset($old['permBuildingType']) && $old['permBuildingType'] === 'Apartment') ? 'selected' : ''; ?>>Apartment</option>
+                    <option <?= (isset($old['permBuildingType']) && $old['permBuildingType'] === 'Boarding') ? 'selected' : ''; ?>>Boarding</option>
+                    <option <?= (isset($old['permBuildingType']) && $old['permBuildingType'] === 'Other') ? 'selected' : ''; ?>>Other</option>
                 </select>
             </div>
             <div class="nic-field">
                 <label for="permStreet">Road/Street <span>*</span></label>
-                <input type="text" id="permStreet" name="permStreet" placeholder="Road/Street" required>
+                <input type="text" id="permStreet" name="permStreet" placeholder="Road/Street" required value="<?= htmlspecialchars($old['permStreet'] ?? '') ?>">
             </div>
         </div>
 
         <div class="nic-grid nic-grid--two">
             <div class="nic-field">
                 <label for="permCity">Village/City <span>*</span></label>
-                <input type="text" id="permCity" name="permCity" placeholder="Village/City" required>
+                <input type="text" id="permCity" name="permCity" placeholder="Village/City" required value="<?= htmlspecialchars($old['permCity'] ?? '') ?>">
             </div>
             <div class="nic-field">
                 <label for="permPostal">Postal Code <span>*</span></label>
-                <input type="text" inputmode="numeric" id="permPostal" name="permPostal" placeholder="Postal Code" required>
+                <input type="text" inputmode="numeric" pattern="^\d{3,10}$" title="Use 3 to 10 digits" id="permPostal" name="permPostal" placeholder="Postal Code" required value="<?= htmlspecialchars($old['permPostal'] ?? '') ?>">
             </div>
         </div>
     </section>
@@ -188,32 +190,32 @@
         <div class="nic-grid nic-grid--three">
             <div class="nic-field">
                 <label for="postHouse">House Name/Number <span>*</span></label>
-                <input type="text" id="postHouse" name="postHouse" placeholder="House name/number" required>
+                <input type="text" id="postHouse" name="postHouse" placeholder="House name/number" required value="<?= htmlspecialchars($old['postHouse'] ?? '') ?>">
             </div>
             <div class="nic-field nic-field--select">
                 <label for="postBuildingType">Building Type <span>*</span></label>
                 <select id="postBuildingType" name="postBuildingType" required>
                     <option value="">Select</option>
-                    <option>House</option>
-                    <option>Apartment</option>
-                    <option>Boarding</option>
-                    <option>Other</option>
+                    <option <?= (isset($old['postBuildingType']) && $old['postBuildingType'] === 'House') ? 'selected' : ''; ?>>House</option>
+                    <option <?= (isset($old['postBuildingType']) && $old['postBuildingType'] === 'Apartment') ? 'selected' : ''; ?>>Apartment</option>
+                    <option <?= (isset($old['postBuildingType']) && $old['postBuildingType'] === 'Boarding') ? 'selected' : ''; ?>>Boarding</option>
+                    <option <?= (isset($old['postBuildingType']) && $old['postBuildingType'] === 'Other') ? 'selected' : ''; ?>>Other</option>
                 </select>
             </div>
             <div class="nic-field">
                 <label for="postStreet">Road/Street <span>*</span></label>
-                <input type="text" id="postStreet" name="postStreet" placeholder="Road/Street" required>
+                <input type="text" id="postStreet" name="postStreet" placeholder="Road/Street" required value="<?= htmlspecialchars($old['postStreet'] ?? '') ?>">
             </div>
         </div>
 
         <div class="nic-grid nic-grid--two">
             <div class="nic-field">
                 <label for="postCity">Village/City <span>*</span></label>
-                <input type="text" id="postCity" name="postCity" placeholder="Village/City" required>
+                <input type="text" id="postCity" name="postCity" placeholder="Village/City" required value="<?= htmlspecialchars($old['postCity'] ?? '') ?>">
             </div>
             <div class="nic-field">
                 <label for="postPostal">Postal Code <span>*</span></label>
-                <input type="text" inputmode="numeric" id="postPostal" name="postPostal" placeholder="Postal Code" required>
+                <input type="text" inputmode="numeric" pattern="^\d{3,10}$" title="Use 3 to 10 digits" id="postPostal" name="postPostal" placeholder="Postal Code" required value="<?= htmlspecialchars($old['postPostal'] ?? '') ?>">
             </div>
         </div>
     </section>
@@ -227,15 +229,15 @@
         <div class="nic-grid nic-grid--three">
             <div class="nic-field">
                 <label for="resPhone">Residence Phone</label>
-                <input type="tel" id="resPhone" name="resPhone" placeholder="Residence phone">
+                <input type="tel" id="resPhone" name="resPhone" placeholder="Residence phone" value="<?= htmlspecialchars($old['resPhone'] ?? '') ?>">
             </div>
             <div class="nic-field">
                 <label for="mobile_phone">Mobile Phone</label>
-                <input type="tel" id="mobile_phone" name="mobile_phone" placeholder="Mobile phone">
+                <input type="tel" id="mobile_phone" name="mobile_phone" placeholder="Mobile phone" pattern="^\d{10}$" title="Enter a 10-digit phone number" value="<?= htmlspecialchars($old['mobile_phone'] ?? '') ?>">
             </div>
             <div class="nic-field">
                 <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" placeholder="you@example.com">
+                <input type="email" id="email" name="email" placeholder="you@example.com" value="<?= htmlspecialchars($old['email'] ?? '') ?>">
             </div>
         </div>
     </section>
@@ -251,9 +253,9 @@
                 <label for="applicationPurpose">Application Purpose <span>*</span></label>
                 <select id="applicationPurpose" name="applicationPurpose" required>
                     <option value="">Select Purpose</option>
-                    <option>Lost NIC Replacement</option>
-                    <option>Change of Address</option>
-                    <option>Correction</option>
+                    <option <?= (isset($old['applicationPurpose']) && $old['applicationPurpose'] === 'Lost NIC Replacement') ? 'selected' : ''; ?>>Lost NIC Replacement</option>
+                    <option <?= (isset($old['applicationPurpose']) && $old['applicationPurpose'] === 'Change of Address') ? 'selected' : ''; ?>>Change of Address</option>
+                    <option <?= (isset($old['applicationPurpose']) && $old['applicationPurpose'] === 'Correction') ? 'selected' : ''; ?>>Correction</option>
                 </select>
             </div>
         </div>
@@ -282,7 +284,7 @@
         <div class="nic-grid nic-grid--one">
             <div class="nic-field">
                 <label for="photoLink">Photo Link <span>*</span></label>
-                <input type="url" id="photoLink" name="photoLink" placeholder="https://example.com/photo.jpg" required>
+                <input type="url" id="photoLink" name="photoLink" placeholder="https://example.com/photo.jpg" required value="<?= htmlspecialchars($old['photoLink'] ?? '') ?>">
             </div>
         </div>
 
@@ -291,4 +293,70 @@
             Before proceeding with the application, ensure that all the details you have entered are accurate and complete. Once the application is submitted, we do not offer refunds or cancellations under any circumstances. Please verify all information carefully before submission.
         </div>
     </section>
+
+    <!-- Form Actions -->
+    <div class="flow-control" style="margin-top: 1rem;">
+        <button id="submitBtn" type="submit" class="btn">Submit Application</button>
+    </div>
 </form>
+
+<script>
+    (function() {
+        const sameCB = document.getElementById('sameAsPermanent');
+        if (!sameCB) return;
+
+        const pairs = [
+            ['permHouse', 'postHouse'],
+            ['permBuildingType', 'postBuildingType'],
+            ['permStreet', 'postStreet'],
+            ['permCity', 'postCity'],
+            ['permPostal', 'postPostal'],
+        ];
+
+        const getEl = (id) => document.getElementById(id);
+
+        function copyValues() {
+            pairs.forEach(([permId, postId]) => {
+                const p = getEl(permId);
+                const t = getEl(postId);
+                if (p && t) {
+                    t.value = p.value;
+                }
+            });
+        }
+
+
+        function bindSync(enabled) {
+            pairs.forEach(([permId, postId]) => {
+                const p = getEl(permId);
+                if (!p) return;
+                const handler = () => {
+                    if (sameCB.checked) copyValues();
+                };
+
+                if (enabled) {
+                    p.addEventListener('input', handler);
+                    p.addEventListener('change', handler);
+                } else {
+                    p.removeEventListener('input', handler);
+                    p.removeEventListener('change', handler);
+                }
+            });
+        }
+
+        sameCB.addEventListener('change', () => {
+            if (sameCB.checked) {
+                copyValues();
+                bindSync(true);
+            } else {
+                bindSync(false);
+            }
+        });
+
+
+        if (sameCB.checked) {
+            copyValues();
+            bindSync(true);
+        }
+    })();
+</script>

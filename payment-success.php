@@ -27,6 +27,16 @@ require __DIR__ . '/views/partials/nav.php';
             echo '</form>';
             echo '<script>document.getElementById("linkFinePayment").submit();</script>';
         }
+
+        // For NIC: link the payment to the latest application via session
+        $alreadyLinked = isset($_GET['linked']) && $_GET['linked'] == '1';
+        if ($variant === 'nic' && $confirmation && !$alreadyLinked) {
+            echo '<form id="linkNicPayment" action="/nic.php" method="POST" style="display:none;">';
+            echo '<input type="hidden" name="action" value="payment_done">';
+            echo '<input type="hidden" name="payment_id" value="' . htmlspecialchars($confirmation) . '">';
+            echo '</form>';
+            echo '<script>document.getElementById("linkNicPayment").submit();</script>';
+        }
         ?>
     </section>
 </main>
