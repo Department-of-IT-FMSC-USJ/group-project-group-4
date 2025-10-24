@@ -109,7 +109,7 @@ function submitApplication()
         birth_certificate_no, place_of_birth, birth_division, birth_district,
         perm_house_name_no, perm_building_type, perm_road_street, perm_village_city, perm_postal_code,
         postal_house_name_no, postal_building_type, postal_road_street, postal_village_city, postal_postal_code,
-        phone_mobile, email, application_purpose, birth_certificate_pdf, photo_pdf, photo_link
+        phone_mobile, email, application_purpose, birth_certificate_pdf, police_report_doc, photo_link
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = $pdo->prepare($sql);
