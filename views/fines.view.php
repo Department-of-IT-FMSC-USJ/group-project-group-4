@@ -64,7 +64,7 @@ $title = 'Fine Settlement - OneID';
                     <p class="error-message"><?= htmlspecialchars($flowError) ?></p>
                 <?php endif; ?>
 
-                <p class="form-hint"><strong>Fine ID:</strong> 1, 2, 3... | <strong>Vehicle:</strong> CAR-1234 | <strong>License:</strong> B5203920</p>
+                <p class="form-hint"><strong>Vehicle:</strong> CAR-1234 | <strong>License:</strong> B5203920</p>
 
                 <button type="submit" class="btn">Check fine</button>
             </form>
