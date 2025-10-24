@@ -67,7 +67,7 @@
         <div class="nic-grid nic-grid--two">
             <div class="nic-field">
                 <label for="dob">Date of Birth <span>*</span></label>
-                <input type="date" id="dob" name="dob" placeholder="yyyy-mm-dd" required value="<?= htmlspecialchars($old['dob'] ?? '') ?>">
+                <input type="date" id="dob" name="dob" placeholder="yyyy-mm-dd" min="1900-01-01" max="<?= date('Y-m-d') ?>" pattern="\d{4}-\d{2}-\d{2}" required value="<?= htmlspecialchars($old['dob'] ?? '') ?>">
             </div>
         </div>
     </section>
@@ -81,7 +81,7 @@
         <div class="nic-grid nic-grid--two">
             <div class="nic-field">
                 <label for="birthCertNo">Birth Certificate Number <span>*</span></label>
-                <input type="text" id="birthCertNo" name="birthCertNo" placeholder="Birth certificate number" required value="<?= htmlspecialchars($old['birthCertNo'] ?? '') ?>">
+                <input type="text" id="birthCertNo" name="birthCertNo" placeholder="e.g., BC001" autocomplete="off" maxlength="10" pattern="^BC\d+$" title="Must start with BC followed by numbers (e.g., BC001)" required value="<?= htmlspecialchars($old['birthCertNo'] ?? '') ?>">
             </div>
             <div class="nic-field">
                 <label for="placeOfBirth">Place of Birth <span>*</span></label>
@@ -111,7 +111,7 @@
             </div>
             <div class="nic-field">
                 <label for="citizenshipCertificate">Citizenship Certificate Number</label>
-                <input type="text" id="citizenshipCertificate" name="citizenshipCertificate" placeholder="Certificate number" value="<?= htmlspecialchars($old['citizenshipCertificate'] ?? '') ?>">
+                <input type="text" id="citizenshipCertificate" name="citizenshipCertificate" placeholder="Certificate number" inputmode="numeric" pattern="^\d+$" title="Enter numbers only" value="<?= htmlspecialchars($old['citizenshipCertificate'] ?? '') ?>">
             </div>
         </div>
     </section>
@@ -172,7 +172,7 @@
             </div>
             <div class="nic-field">
                 <label for="permPostal">Postal Code <span>*</span></label>
-                <input type="text" inputmode="numeric" pattern="^\d{3,10}$" title="Use 3 to 10 digits" id="permPostal" name="permPostal" placeholder="Postal Code" required value="<?= htmlspecialchars($old['permPostal'] ?? '') ?>">
+                <input type="text" inputmode="numeric" pattern="^\d{3,10}$" title="Enter 3 to 10 digits only" id="permPostal" name="permPostal" placeholder="Postal Code" required value="<?= htmlspecialchars($old['permPostal'] ?? '') ?>">
             </div>
         </div>
     </section>
@@ -215,7 +215,7 @@
             </div>
             <div class="nic-field">
                 <label for="postPostal">Postal Code <span>*</span></label>
-                <input type="text" inputmode="numeric" pattern="^\d{3,10}$" title="Use 3 to 10 digits" id="postPostal" name="postPostal" placeholder="Postal Code" required value="<?= htmlspecialchars($old['postPostal'] ?? '') ?>">
+                <input type="text" inputmode="numeric" pattern="^\d{3,10}$" title="Enter 3 to 10 digits only" id="postPostal" name="postPostal" placeholder="Postal Code" required value="<?= htmlspecialchars($old['postPostal'] ?? '') ?>">
             </div>
         </div>
     </section>
@@ -228,35 +228,16 @@
 
         <div class="nic-grid nic-grid--three">
             <div class="nic-field">
-                <label for="resPhone">Residence Phone</label>
-                <input type="tel" id="resPhone" name="resPhone" placeholder="Residence phone" value="<?= htmlspecialchars($old['resPhone'] ?? '') ?>">
+                <label for="resPhone">Residence Phone <span>*</span></label>
+                <input type="tel" id="resPhone" name="resPhone" placeholder="Residence phone" inputmode="numeric" pattern="^\d{10}$" title="Enter a 10-digit phone number" required value="<?= htmlspecialchars($old['resPhone'] ?? '') ?>">
             </div>
             <div class="nic-field">
-                <label for="mobile_phone">Mobile Phone</label>
-                <input type="tel" id="mobile_phone" name="mobile_phone" placeholder="Mobile phone" pattern="^\d{10}$" title="Enter a 10-digit phone number" value="<?= htmlspecialchars($old['mobile_phone'] ?? '') ?>">
+                <label for="mobile_phone">Mobile Phone <span>*</span></label>
+                <input type="tel" id="mobile_phone" name="mobile_phone" placeholder="Mobile phone" inputmode="numeric" pattern="^\d{10}$" title="Enter a 10-digit phone number" required value="<?= htmlspecialchars($old['mobile_phone'] ?? '') ?>">
             </div>
             <div class="nic-field">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" placeholder="you@example.com" value="<?= htmlspecialchars($old['email'] ?? '') ?>">
-            </div>
-        </div>
-    </section>
-
-    <!-- Application Details -->
-    <section class="nic-section" aria-labelledby="application-details">
-        <header class="nic-section__header">
-            <h3 id="application-details">Application Details</h3>
-        </header>
-
-        <div class="nic-grid nic-grid--two">
-            <div class="nic-field nic-field--select">
-                <label for="applicationPurpose">Application Purpose <span>*</span></label>
-                <select id="applicationPurpose" name="applicationPurpose" required>
-                    <option value="">Select Purpose</option>
-                    <option <?= (isset($old['applicationPurpose']) && $old['applicationPurpose'] === 'Lost NIC Replacement') ? 'selected' : ''; ?>>Lost NIC Replacement</option>
-                    <option <?= (isset($old['applicationPurpose']) && $old['applicationPurpose'] === 'Change of Address') ? 'selected' : ''; ?>>Change of Address</option>
-                    <option <?= (isset($old['applicationPurpose']) && $old['applicationPurpose'] === 'Correction') ? 'selected' : ''; ?>>Correction</option>
-                </select>
+                <label for="email">Email Address <span>*</span></label>
+                <input type="email" id="email" name="email" placeholder="you@example.com" required value="<?= htmlspecialchars($old['email'] ?? '') ?>">
             </div>
         </div>
     </section>
@@ -274,17 +255,18 @@
                 <input type="file" id="birthCertPdf" name="birthCertPdf" accept="application/pdf" required>
             </label>
 
-            <label class="nic-file" for="photoPdf">
-                <span>Photo (PDF) <span>*</span></span>
-                <span>Choose Photo PDF</span>
-                <input type="file" id="photoPdf" name="photoPdf" accept="application/pdf" required>
+            <label class="nic-file" for="policeReportPdf">
+                <span>Police Report (PDF) <span>*</span></span>
+                <span>Choose Police Report PDF</span>
+                <input type="file" id="policeReportPdf" name="policeReportPdf" accept="application/pdf" required>
             </label>
         </div>
 
         <div class="nic-grid nic-grid--one">
             <div class="nic-field">
-                <label for="photoLink">Photo Link <span>*</span></label>
-                <input type="url" id="photoLink" name="photoLink" placeholder="https://example.com/photo.jpg" required value="<?= htmlspecialchars($old['photoLink'] ?? '') ?>">
+                <label for="photoLink">Photo Link (Google Drive) <span>*</span></label>
+                <input type="url" id="photoLink" name="photoLink" placeholder="https://drive.google.com/..." required value="<?= htmlspecialchars($old['photoLink'] ?? '') ?>">
+                <small style="color: #666; font-size: 0.875rem; display: block; margin-top: 0.25rem;">Upload your photo to Google Drive and paste the shareable link here</small>
             </div>
         </div>
 
@@ -358,5 +340,112 @@
             copyValues();
             bindSync(true);
         }
+
+        // Live validation for numeric fields
+        function validateNumericInput(inputId, pattern, errorMessage) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            input.addEventListener('input', function(e) {
+                const value = e.target.value;
+                const regex = new RegExp(pattern);
+
+                if (value && !regex.test(value)) {
+                    input.setCustomValidity(errorMessage);
+                    input.style.borderColor = 'red';
+                } else {
+                    input.setCustomValidity('');
+                    input.style.borderColor = '';
+                }
+            });
+        }
+
+        // Validate phone numbers (10 digits only)
+        validateNumericInput('resPhone', '^\\d{0,10}$', 'Residence phone must be exactly 10 digits');
+        validateNumericInput('mobile_phone', '^\\d{0,10}$', 'Mobile phone must be exactly 10 digits');
+
+        // Validate postal codes (3-10 digits)
+        validateNumericInput('permPostal', '^\\d{0,10}$', 'Postal code must be 3-10 digits');
+        validateNumericInput('postPostal', '^\\d{0,10}$', 'Postal code must be 3-10 digits');
+
+        // Validate Citizenship Certificate (numbers only)
+        validateNumericInput('citizenshipCertificate', '^\\d*$', 'Only numbers allowed');
+
+        // Validate Birth Certificate Number (BC format)
+        const bcInput = document.getElementById('birthCertNo');
+        if (bcInput) {
+            bcInput.addEventListener('input', function(e) {
+                let value = e.target.value.toUpperCase();
+                e.target.value = value;
+
+                const regex = /^BC\d*$/;
+                if (!regex.test(value)) {
+                    if (value.length === 0) {
+                        bcInput.setCustomValidity('');
+                        bcInput.style.borderColor = '';
+                    } else if (!value.startsWith('BC')) {
+                        bcInput.setCustomValidity('Must start with BC');
+                        bcInput.style.borderColor = 'red';
+                    } else {
+                        bcInput.setCustomValidity('Only numbers allowed after BC');
+                        bcInput.style.borderColor = 'red';
+                    }
+                } else if (value.length > 0 && value.length < 3) {
+                    bcInput.setCustomValidity('Must be at least BC followed by numbers (e.g., BC001)');
+                    bcInput.style.borderColor = 'red';
+                } else {
+                    bcInput.setCustomValidity('');
+                    bcInput.style.borderColor = '';
+                }
+            });
+
+            bcInput.addEventListener('keypress', function(e) {
+                const char = e.key;
+                const currentValue = bcInput.value.toUpperCase();
+
+                if (currentValue.length === 0 && char.toUpperCase() !== 'B') {
+                    e.preventDefault();
+                } else if (currentValue.length === 1 && char.toUpperCase() !== 'C') {
+                    e.preventDefault();
+                } else if (currentValue.length >= 2 && !/\d/.test(char)) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        // Validate Google Drive link
+        const photoLink = document.getElementById('photoLink');
+        if (photoLink) {
+            photoLink.addEventListener('input', function(e) {
+                const value = e.target.value;
+                const isDriveLink = value.includes('drive.google.com') || value.includes('docs.google.com');
+
+                if (value && !isDriveLink) {
+                    photoLink.setCustomValidity('Please provide a valid Google Drive link');
+                    photoLink.style.borderColor = 'red';
+                } else {
+                    photoLink.setCustomValidity('');
+                    photoLink.style.borderColor = '';
+                }
+            });
+        }
+
+        // Prevent non-numeric input for numeric fields
+        function allowOnlyNumbers(inputId) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            input.addEventListener('keypress', function(e) {
+                if (e.key && !/^\d$/.test(e.key)) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        allowOnlyNumbers('resPhone');
+        allowOnlyNumbers('mobile_phone');
+        allowOnlyNumbers('permPostal');
+        allowOnlyNumbers('postPostal');
+        allowOnlyNumbers('citizenshipCertificate');
     })();
 </script>
