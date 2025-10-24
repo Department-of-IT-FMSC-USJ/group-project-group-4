@@ -3,24 +3,25 @@ $variant = $variant ?? 'nic';
 $messages = [
     'nic' => [
         'title' => 'Application Submitted Successfully',
-        'body' => 'Your NIC application and payment have been successfully received. Your request is now being processed. The new NIC will be issued and delivered to your registered address. A confirmation email has been sent to your registered email address. Please keep this for your records.',
+        'body' => 'Your NIC application and payment have been successfully received. Your request is now being processed. The new NIC will be issued and delivered to your registered address. Please keep this for your records.',
         'confirmation' => 'NIC-986050',
     ],
     'birth' => [
         'title' => 'Payment Successful',
-        'body' => 'Your payment has been successfully processed. Your request for birth certificate copies has been received. The copies will be delivered to your home address within the specified time period. A confirmation email has been sent to your registered email address. Please save this number for your records.',
+        'body' => 'Your payment has been successfully processed. Your request for birth certificate copies has been received. The copies will be delivered to your home address within the specified time period. Please save this number for your records.',
         'confirmation' => 'BC-986050',
     ],
     'fine' => [
         'title' => 'Fine Payment Successful',
-        'body' => 'Your fine has been successfully paid. The payment has been recorded in the system, and your driving license status will be updated accordingly. A payment confirmation has been sent to your registered email address. Please retain this receipt for future reference.',
+        'body' => 'Your fine has been successfully paid. The payment has been recorded in the system, and your driving license status will be updated accordingly. Please retain this receipt for future reference.',
         'confirmation' => 'FINE-986050',
     ],
     'payment' => [
         'title' => 'Payment Successful',
-        'body' => 'Your payment has been successfully processed. A confirmation has been sent to your email. Thank you for using OneID services.',
+        'body' => 'Your payment has been successfully processed. Thank you for using OneID services.',
         'confirmation' => 'PAY-986050',
     ],
+
 ];
 
 $message = $messages[$variant] ?? $messages['nic'];
