@@ -5,6 +5,10 @@ $variant = $_GET['success'] ?? 'payment';
 $confirmation = $_GET['id'] ?? '';
 $title = 'Payment Success - OneID';
 
+// Start session to access birth certificate order data
+session_start();
+require_once __DIR__ . '/config/database.php';
+
 require __DIR__ . '/views/partials/head.php';
 require __DIR__ . '/views/partials/nav.php';
 ?>
@@ -26,6 +30,34 @@ require __DIR__ . '/views/partials/nav.php';
             echo '<input type="hidden" name="payment_id" value="' . htmlspecialchars($confirmation) . '">';
             echo '</form>';
             echo '<script>document.getElementById("linkFinePayment").submit();</script>';
+        }
+
+        // For Birth Certificate: save order to database
+        if ($variant === 'birth' && $confirmation && isset($_SESSION['birth_flow'])) {
+            $certificate = $_SESSION['birth_flow']['certificate'] ?? null;
+            $order = $_SESSION['birth_flow']['order'] ?? null;
+
+            if ($certificate && $order && $confirmation) {
+                try {
+                    // Insert birth certificate order
+                    $stmt = $pdo->prepare("INSERT INTO birth_certificate_orders (birth_certificate_number, quantity, payment_id) VALUES (?, ?, ?)");
+                    $stmt->execute([
+                        $certificate['birth_certificate_number'],
+                        $order['quantity'],
+                        $confirmation
+                    ]);
+
+                    // Clear the session data
+                    $_SESSION['birth_flow'] = [
+                        'step' => 'notice',
+                        'certificate' => null,
+                        'order' => null,
+                        'error' => null,
+                    ];
+                } catch (PDOException $e) {
+                    error_log("Birth Certificate Order Save Error: " . $e->getMessage());
+                }
+            }
         }
 
         // For NIC: link the payment to the latest application via session
