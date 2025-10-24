@@ -48,7 +48,7 @@
             <p>Please complete all required sections carefully. The information provided will be used to verify your identity.</p>
 
             <?php if ($flowError && $flowStep === 'application'): ?>
-                <p class="error-message" style="color: red; padding: 1rem; background: #fee; border-radius: 6px; margin-bottom: 1rem;"><?= htmlspecialchars($flowError) ?></p>
+                <p class="error-message"><?= htmlspecialchars($flowError) ?></p>
             <?php endif; ?>
 
             <?php require __DIR__ . '/components/nic-form.php'; ?>
@@ -101,17 +101,28 @@
                         <dt>Service Charge</dt>
                         <dd>LKR 250.00</dd>
                     </div>
-                    <div class="order-summary_row order-summary_total">
+                    <div class="order-summary__row">
+                        <dt>Delivery Fee</dt>
+                        <dd>LKR 200.00</dd>
+                    </div>
+                    <div class="order-summary__row">
+                        <dt>Subtotal</dt>
+                        <dd>LKR 1,950.00</dd>
+                    </div>
+                    <div class="order-summary__row">
+                        <dt>Tax (18%)</dt>
+                        <dd>LKR 351.00</dd>
+                    </div>
+                    <div class="order-summary__row order-summary__total">
                         <dt>Total</dt>
-                        <dd>LKR 1,750.00</dd>
+                        <dd>LKR 2,301.00</dd>
                     </div>
                 </dl>
             </div>
 
             <?php
             $paymentData = [
-                'application_id' => $applicationId ?? '',
-                'order_total' => 1750.00,
+                'order_total' => 2301.00,
                 'success_variant' => 'nic'
             ];
             require __DIR__ . '/components/payment-form.php';
