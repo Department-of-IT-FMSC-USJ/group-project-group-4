@@ -16,7 +16,7 @@ if (!isset($_SESSION['birth_flow'])) {
 function computeBCOrder(int $quantity): array
 {
     $quantity = max(1, min(10, $quantity));
-    $perCopy = 1000.00;
+    $perCopy = 120.00;
     $copiesCost = $perCopy * $quantity;
     $serviceFee = 100.00;
     $postalFee = 60.00;
@@ -63,6 +63,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $number = trim($_POST['birthCertificateNumber'] ?? '');
             if ($number === '') {
                 $_SESSION['birth_flow']['error'] = 'Please enter your birth certificate number (e.g., BC001).';
+                $_SESSION['birth_flow']['step'] = 'certificate';
+                header('Location: /birthcertificate.php');
+                exit;
+            }
+            
+            // Validate BC format (BC followed by numbers)
+            if (!preg_match('/^BC\d+$/', $number)) {
+                $_SESSION['birth_flow']['error'] = 'Birth Certificate Number must start with BC followed by numbers (e.g., BC001).';
                 $_SESSION['birth_flow']['step'] = 'certificate';
                 header('Location: /birthcertificate.php');
                 exit;
