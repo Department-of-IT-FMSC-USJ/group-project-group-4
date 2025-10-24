@@ -250,7 +250,7 @@
                     NIC Applications (<?= count($nicApplications) ?>)
                 </button>
                 <button class="tab-button" onclick="switchTab('birth')">
-                    Birth Certificates (<?= count($birthCertificates) ?>)
+                    Birth Certificate Orders (<?= count($birthCertificateOrders) ?>)
                 </button>
                 <button class="tab-button" onclick="switchTab('fines')">
                     Fines (<?= count($fines) ?>)
@@ -337,12 +337,12 @@
                 <?php endif; ?>
             </div>
 
-            <!-- Birth Certificates Tab -->
+            <!-- Birth Certificate Orders Tab -->
             <div id="birth-tab" class="tab-content">
-                <?php if (empty($birthCertificates)): ?>
+                <?php if (empty($birthCertificateOrders)): ?>
                     <div class="empty-state">
-                        <h3>No Birth Certificates</h3>
-                        <p>No birth certificates have been registered yet.</p>
+                        <h3>No Birth Certificate Orders</h3>
+                        <p>No birth certificate copy orders have been placed yet.</p>
                     </div>
                 <?php else: ?>
                     <div class="table-wrapper">
@@ -350,37 +350,56 @@
                             <thead>
                                 <tr>
                                     <th>Processed</th>
+                                    <th>Order ID</th>
                                     <th>Certificate No</th>
-                                    <th>Date of Birth</th>
-                                    <th>Place of Birth</th>
-                                    <th>Father DOB</th>
-                                    <th>Mother DOB</th>
-                                    <th>Date</th>
+                                    <th>Quantity</th>
+                                    <th>DOB / Place</th>
+                                    <th>Payment</th>
+                                    <th>Order Date</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($birthCertificates as $cert): ?>
-                                    <tr<?= $cert['processed_by_admin'] ? ' class="processed-row"' : '' ?>>
+                                <?php foreach ($birthCertificateOrders as $order): ?>
+                                    <tr<?= $order['processed_by_admin'] ? ' class="processed-row"' : '' ?>>
                                         <td>
                                             <input type="checkbox"
                                                 class="processed-checkbox"
                                                 data-type="birth"
-                                                data-id="<?= htmlspecialchars($cert['birth_certificate_number']) ?>"
-                                                <?= $cert['processed_by_admin'] ? 'checked' : '' ?>
+                                                data-id="<?= htmlspecialchars($order['order_id']) ?>"
+                                                <?= $order['processed_by_admin'] ? 'checked' : '' ?>
                                                 title="Mark as processed">
                                         </td>
-                                        <td class="app-id"><?= htmlspecialchars($cert['birth_certificate_number']) ?></td>
-                                        <td><?= htmlspecialchars(date('d M Y', strtotime($cert['date_of_birth']))) ?></td>
-                                        <td><?= htmlspecialchars($cert['place_of_birth']) ?></td>
-                                        <td><?= $cert['father_date_of_birth'] ? htmlspecialchars(date('d M Y', strtotime($cert['father_date_of_birth']))) : '-' ?></td>
-                                        <td><?= $cert['mother_date_of_birth'] ? htmlspecialchars(date('d M Y', strtotime($cert['mother_date_of_birth']))) : '-' ?></td>
                                         <td>
-                                            <?php if ($cert['payment_date']): ?>
-                                                <div class="text-xs"><?= htmlspecialchars(date('d M Y', strtotime($cert['payment_date']))) ?></div>
-                                                <div class="text-xs text-muted"><?= htmlspecialchars(date('h:i A', strtotime($cert['payment_date']))) ?></div>
-                                            <?php else: ?>
-                                                <span class="text-muted">-</span>
+                                            <span class="app-id">#<?= htmlspecialchars($order['order_id']) ?></span>
+                                        </td>
+                                        <td class="app-id"><?= htmlspecialchars($order['birth_certificate_number']) ?></td>
+                                        <td>
+                                            <span style="font-weight: 600;"><?= htmlspecialchars($order['quantity']) ?></span>
+                                            <?= $order['quantity'] == 1 ? 'copy' : 'copies' ?>
+                                        </td>
+                                        <td>
+                                            <?php if ($order['date_of_birth']): ?>
+                                                <div class="text-xs"><?= htmlspecialchars(date('d M Y', strtotime($order['date_of_birth']))) ?></div>
                                             <?php endif; ?>
+                                            <?php if ($order['place_of_birth']): ?>
+                                                <div class="text-xs text-muted"><?= htmlspecialchars($order['place_of_birth']) ?></div>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <?php if ($order['payment_status']): ?>
+                                                <span class="status-badge status-<?= strtolower($order['payment_status']) ?>">
+                                                    <?= htmlspecialchars($order['payment_status']) ?>
+                                                </span>
+                                                <?php if ($order['payment_amount']): ?>
+                                                    <div class="text-xs text-muted">LKR <?= number_format($order['payment_amount'], 2) ?></div>
+                                                <?php endif; ?>
+                                            <?php else: ?>
+                                                <span class="text-muted">Pending</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <div class="text-xs"><?= htmlspecialchars(date('d M Y', strtotime($order['order_date']))) ?></div>
+                                            <div class="text-xs text-muted"><?= htmlspecialchars(date('h:i A', strtotime($order['order_date']))) ?></div>
                                         </td>
                                         </tr>
                                     <?php endforeach; ?>
