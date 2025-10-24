@@ -30,7 +30,9 @@ CREATE TABLE fines (
     payment_id INT NULL,
     mistake_id INT NULL,
     FOREIGN KEY (payment_id) REFERENCES payments(payment_id),
-    FOREIGN KEY (mistake_id) REFERENCES mistakes(mistake_id)
+    FOREIGN KEY (mistake_id) REFERENCES mistakes(mistake_id),
+    CONSTRAINT chk_vehicle_number CHECK (vehicle_number REGEXP '^[A-Z]{3}-[0-9]{4}$'),
+    CONSTRAINT chk_license_number CHECK (license_number REGEXP '^[A-Z][0-9]{7}$')
 );
 
 -- Birth Certificates table Dushan
@@ -44,7 +46,23 @@ CREATE TABLE birth_certificates (
     mother_place_of_birth VARCHAR(100),
     processed_by_admin BOOLEAN DEFAULT FALSE,
     payment_id INT NULL,
-    FOREIGN KEY (payment_id) REFERENCES payments(payment_id)
+    FOREIGN KEY (payment_id) REFERENCES payments(payment_id),
+    CONSTRAINT chk_bc_number CHECK (birth_certificate_number REGEXP '^BC[0-9]+$')
+);
+
+-- Birth Certificate Orders table - Tracks copy requests
+CREATE TABLE birth_certificate_orders (
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
+    birth_certificate_number VARCHAR(50) NOT NULL,
+    quantity INT NOT NULL,
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    processed_by_admin BOOLEAN DEFAULT FALSE,
+    payment_id INT NULL,
+    FOREIGN KEY (birth_certificate_number) REFERENCES birth_certificates(birth_certificate_number),
+    FOREIGN KEY (payment_id) REFERENCES payments(payment_id),
+    INDEX idx_bc_orders_bc_number (birth_certificate_number),
+    INDEX idx_bc_orders_processed (processed_by_admin),
+    INDEX idx_bc_orders_payment (payment_id)
 );
 
 -- Identity Card Applications table Inshab
@@ -91,11 +109,11 @@ CREATE TABLE identity_card_applications (
     birth_certificate_pdf LONGBLOB NOT NULL,
     police_report_doc LONGBLOB NOT NULL,
     photo_link VARCHAR(255) NOT NULL,
-    photo_pdf LONGBLOB,
     processed_by_admin BOOLEAN DEFAULT FALSE,
     application_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     payment_id INT NULL,
-    FOREIGN KEY (payment_id) REFERENCES payments(payment_id)
+    FOREIGN KEY (payment_id) REFERENCES payments(payment_id),
+    CONSTRAINT chk_birth_cert_no CHECK (birth_certificate_no REGEXP '^BC[0-9]+$')
 );
 
 -- Admins table Harsha
@@ -146,3 +164,4 @@ INSERT INTO mistakes (mistake, amount) VALUES
 ('No of persons carried in a lorry', 500),
 ('Violation of Regulations on motor vehicles', 1000),
 ('Failure to carry the Emission / Fitness Certificate', 500);
+

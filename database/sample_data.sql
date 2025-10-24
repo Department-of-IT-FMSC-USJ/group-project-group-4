@@ -1,9 +1,9 @@
 INSERT INTO fines (vehicle_number, license_number, place, driver_name, driver_address, mistake_id) VALUES
-('CAR-1234', 'DL123456', 'Colombo Fort', 'John Perera', '123 Main Street, Colombo 01', 1),
-('BUS-5678', 'DL789012', 'Kandy City', 'Jane Silva', '456 Hill Road, Kandy', 10),
-('VAN-9999', 'DL555666', 'Galle Road', 'Mike Fernando', '789 Beach Road, Mount Lavinia', 3),
-('CAR-2468', 'DL987654', 'Negombo', 'Sarah Wijesinghe', '321 Church Street, Negombo', 19),
-('BIKE-1357', 'DL246810', 'Maharagama', 'David Rajapaksa', '654 Temple Road, Maharagama', 2);
+('CAR-1234', 'D1234567', 'Colombo Fort', 'John Perera', '123 Main Street, Colombo 01', 1),
+('BUS-5678', 'D7890123', 'Kandy City', 'Jane Silva', '456 Hill Road, Kandy', 10),
+('VAN-9999', 'D5556667', 'Galle Road', 'Mike Fernando', '789 Beach Road, Mount Lavinia', 3),
+('CAR-2468', 'D9876543', 'Negombo', 'Sarah Wijesinghe', '321 Church Street, Negombo', 19),
+('BIK-1357', 'B5203920', 'Maharagama', 'David Rajapaksa', '654 Temple Road, Maharagama', 2);
 
 
 INSERT INTO payments (amount, status) VALUES
@@ -27,7 +27,7 @@ INSERT INTO identity_card_applications (
     birth_certificate_no, place_of_birth, birth_division, birth_district,
     perm_house_name_no, perm_building_type, perm_road_street, perm_village_city, perm_postal_code,
     postal_house_name_no, postal_building_type, postal_road_street, postal_village_city, postal_postal_code,
-    phone_mobile, email, application_purpose, birth_certificate_pdf, photo_pdf, photo_link, payment_id
+    phone_mobile, email, application_purpose, birth_certificate_pdf, police_report_doc, photo_link, payment_id
 ) VALUES
 (
     'Colombo', 'Colombo', 'GN001/A',
@@ -35,7 +35,7 @@ INSERT INTO identity_card_applications (
     'BC001', 'Colombo', 'Colombo', 'Colombo',
     '123/A', 'House', 'Main Road', 'Colombo 03', '00300',
     '123/A', 'House', 'Main Road', 'Colombo 03', '00300',
-    '0771234567', 'kasun@email.com', 'Lost', 'dummy_pdf_data', 'dummy_photo_data', 'photo1.jpg', 1
+    '0771234567', 'kasun@email.com', 'Lost', 'dummy_pdf_data', 'dummy_police_report_data', 'https://drive.google.com/photo1', 1
 ),
 (
     'Kandy', 'Kandy', 'GN002/B',
@@ -43,7 +43,7 @@ INSERT INTO identity_card_applications (
     'BC002', 'Kandy', 'Kandy', 'Kandy',
     '456/B', 'Apartment', 'Temple Road', 'Kandy', '20000',
     '456/B', 'Apartment', 'Temple Road', 'Kandy', '20000',
-    '0712345678', 'nimali@email.com', 'Renew', 'dummy_pdf_data', 'dummy_photo_data', 'photo2.jpg', NULL
+    '0712345678', 'nimali@email.com', 'Renew', 'dummy_pdf_data', 'dummy_police_report_data', 'https://drive.google.com/photo2', NULL
 ),
 (
     'Galle', 'Galle', 'GN003/C',
@@ -51,7 +51,7 @@ INSERT INTO identity_card_applications (
     'BC003', 'Galle', 'Galle', 'Galle',
     '789/C', 'House', 'Beach Road', 'Galle', '80000',
     '789/C', 'House', 'Beach Road', 'Galle', '80000',
-    '0723456789', 'ruwan@email.com', 'Changes', 'dummy_pdf_data', 'dummy_photo_data', 'photo3.jpg', 3
+    '0723456789', 'ruwan@email.com', 'Changes', 'dummy_pdf_data', 'dummy_police_report_data', 'https://drive.google.com/photo3', 3
 );
 
 
