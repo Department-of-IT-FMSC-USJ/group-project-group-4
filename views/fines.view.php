@@ -20,23 +20,32 @@ $title = 'Fine Settlement - OneID';
     <section class="flow">
         <!-- Fine Paid/Delivered Step -->
         <div class="flow-step <?= $flowStep === 'done' ? 'is-active' : '' ?>" <?= $flowStep !== 'done' ? 'hidden' : '' ?>>
-            <h2>Fine Already Paid</h2>
+            <h2><?= $justPaid ? 'Successfully Paid' : 'Fine Already Paid' ?></h2>
+
             <div class="fine-details">
-                <header class="fine-card">
-                    <div class="fine-card__meta">
-                        <span class="fine-card__label">Fine ID</span>
-                        <span class="fine-card__value"><?= htmlspecialchars($fine['fine_id'] ?? '—') ?></span>
-                    </div>
-                    <div class="fine-card__meta">
-                        <span class="fine-card__label">Status</span>
-                        <span class="fine-card__value">Completed</span>
+                <header class="fine-card fine-card--success">
+                    <div class="fine-info-list">
+                        <div class="fine-card__meta">
+                            <span class="fine-card__label">FINE ID</span>
+                            <span class="fine-card__value"><?= htmlspecialchars($fine['fine_id'] ?? '—') ?></span>
+                        </div>
+                        <div class="fine-card__meta">
+                            <span class="fine-card__label">STATUS</span>
+                            <span class="fine-card__value fine-card__value--success">Completed</span>
+                        </div>
                     </div>
                 </header>
-                <div class="fine-total">
-                    <span class="fine-total__label">No fine to pay.</span>
-                </div>
-                <div class="delivery-message" style="margin-top:1rem; background:#e6f7e6; padding:1rem; border-radius:8px;">
-                    <strong>Your fine has been paid and the license will be delivered to your doorstep.</strong>
+
+                <div class="fine-message fine-message--success">
+                    <div class="fine-message__icon">✓</div>
+                    <div class="fine-message__content">
+                        <strong class="fine-message__title">NO FINE TO PAY.</strong>
+                        <p class="fine-message__text">
+                            <?= $justPaid
+                                ? 'Your fine has been successfully paid and the license will be delivered to your doorstep.'
+                                : 'Your fine has been paid and the license will be delivered to your doorstep.' ?>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -55,10 +64,56 @@ $title = 'Fine Settlement - OneID';
                     <p class="error-message"><?= htmlspecialchars($flowError) ?></p>
                 <?php endif; ?>
 
-                <p class="form-hint"><strong>CAR-1234</strong> (Vehicle), or <strong>DL123456</strong> (License)</p>
+                <p class="form-hint"><strong>Fine ID:</strong> 1, 2, 3... | <strong>Vehicle:</strong> CAR-1234 | <strong>License:</strong> B5203920</p>
 
                 <button type="submit" class="btn">Check fine</button>
             </form>
+
+            <script>
+                (function() {
+                    const fineInput = document.getElementById('fineIdInput');
+                    if (!fineInput) return;
+
+                    fineInput.addEventListener('input', function(e) {
+                        const value = e.target.value.toUpperCase();
+                        e.target.value = value; // Auto uppercase
+
+                        // Allow letters, numbers, and hyphens
+                        const regex = /^[A-Z0-9\-]*$/;
+
+                        if (!regex.test(value)) {
+                            fineInput.setCustomValidity('Only letters, numbers, and hyphens are allowed');
+                            fineInput.style.borderColor = 'red';
+                        } else if (value.length > 0) {
+                            // Check specific formats
+                            const isFineId = /^\d+$/.test(value);
+                            const isVehicle = /^[A-Z]{3}-[0-9]{4}$/.test(value);
+                            const isLicense = /^[A-Z][0-9]{7}$/.test(value);
+                            const isPartialVehicle = /^[A-Z]{0,3}(-[0-9]{0,4})?$/.test(value);
+                            const isPartialLicense = /^[A-Z]?[0-9]{0,7}$/.test(value);
+
+                            if (isFineId || isVehicle || isLicense || isPartialVehicle || isPartialLicense) {
+                                fineInput.setCustomValidity('');
+                                fineInput.style.borderColor = '';
+                            } else {
+                                fineInput.setCustomValidity('Format: Fine ID (number), Vehicle (ABC-1234), or License (B1234567)');
+                                fineInput.style.borderColor = 'orange';
+                            }
+                        } else {
+                            fineInput.setCustomValidity('');
+                            fineInput.style.borderColor = '';
+                        }
+                    });
+
+                    // Prevent invalid characters from being typed
+                    fineInput.addEventListener('keypress', function(e) {
+                        const char = e.key;
+                        if (!/[A-Za-z0-9\-]/.test(char)) {
+                            e.preventDefault();
+                        }
+                    });
+                })();
+            </script>
         </div>
 
 
@@ -68,30 +123,42 @@ $title = 'Fine Settlement - OneID';
 
             <?php if ($fine): ?>
                 <div class="fine-details">
-                    <header class="fine-card">
-                        <div class="fine-card__meta">
-                            <span class="fine-card__label">Fine ID</span>
-                            <span class="fine-card__value"><?= htmlspecialchars($fine['fine_id'] ?? '—') ?></span>
-                        </div>
-                        <div class="fine-card__meta">
-                            <span class="fine-card__label">Date</span>
-                            <span class="fine-card__value"><?= isset($fine['issued_at']) ? date('M d, Y', strtotime($fine['issued_at'])) : '—' ?></span>
-                        </div>
-                        <div class="fine-card__meta">
-                            <span class="fine-card__label">Driver</span>
-                            <span class="fine-card__value"><?= htmlspecialchars($fine['driver_name'] ?? '—') ?></span>
-                        </div>
-                        <div class="fine-card__meta">
-                            <span class="fine-card__label">Vehicle</span>
-                            <span class="fine-card__value"><?= htmlspecialchars($fine['vehicle_number'] ?? '—') ?></span>
-                        </div>
-                        <p class="fine-card__violation"><?= htmlspecialchars($fine['mistake'] ?? 'No violation details') ?></p>
-                        <p class="fine-card__location"><?= htmlspecialchars($fine['place'] ?? '—') ?></p>
-                        <div class="fine-card__meta">
-                            <span class="fine-card__label">Status</span>
-                            <span class="fine-card__value"><?= htmlspecialchars($fine['payment_status'] ?? 'Pending') ?></span>
-                        </div>
-                    </header>
+                    <div class="fine-card">
+                        <table class="fine-details-table">
+                            <tbody>
+                                <tr>
+                                    <td class="fine-label">FINE ID</td>
+                                    <td class="fine-value"><?= htmlspecialchars($fine['fine_id'] ?? '—') ?></td>
+                                </tr>
+                                <tr>
+                                    <td class="fine-label">DATE</td>
+                                    <td class="fine-value"><?= isset($fine['issued_at']) ? date('M d, Y', strtotime($fine['issued_at'])) : '—' ?></td>
+                                </tr>
+                                <tr>
+                                    <td class="fine-label">DRIVER</td>
+                                    <td class="fine-value"><?= htmlspecialchars($fine['driver_name'] ?? '—') ?></td>
+                                </tr>
+                                <tr>
+                                    <td class="fine-label">VEHICLE</td>
+                                    <td class="fine-value"><?= htmlspecialchars($fine['vehicle_number'] ?? '—') ?></td>
+                                </tr>
+                                <tr>
+                                    <td class="fine-label" colspan="2" style="padding-top: 1rem; padding-bottom: 0.5rem;">
+                                        <?= htmlspecialchars($fine['mistake'] ?? 'No violation details') ?>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fine-label" colspan="2" style="padding-bottom: 1rem; color: #6b7280;">
+                                        <?= htmlspecialchars($fine['place'] ?? '—') ?>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fine-label">STATUS</td>
+                                    <td class="fine-value"><?= htmlspecialchars($fine['payment_status'] ?? 'Pending') ?></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
                     <div class="fine-total">
                         <span class="fine-total__label">Amount Due</span>
