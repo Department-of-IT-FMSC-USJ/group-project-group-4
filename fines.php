@@ -10,6 +10,7 @@ if (!isset($_SESSION['fines_flow'])) {
         'fine' => null,
         'order' => null,
         'error' => null,
+        'just_paid' => false,
     ];
 }
 
@@ -50,6 +51,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit;
                 }
 
+                // Validate format
+                $isValidVehicle = preg_match('/^[A-Z]{3}-[0-9]{4}$/', $input);
+                $isValidLicense = preg_match('/^[A-Z][0-9]{7}$/', $input);
+                $isValidFineId = ctype_digit($input);
+
+                if (!$isValidFineId && !$isValidVehicle && !$isValidLicense) {
+                    $_SESSION['fines_flow']['error'] = 'Invalid format. Use Fine ID (number), Vehicle (ABC-1234), or License (B1234567).';
+                    $_SESSION['fines_flow']['step'] = 'lookup';
+                    header('Location: /fines.php');
+                    exit;
+                }
 
                 $fine = null;
 
@@ -101,12 +113,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $_SESSION['fines_flow']['order'] = null;
                         $_SESSION['fines_flow']['error'] = null;
                         $_SESSION['fines_flow']['step'] = 'done';
+                        $_SESSION['fines_flow']['just_paid'] = false; // Already paid before
                     } else {
                         $order = computeFineOrder($fine);
                         $_SESSION['fines_flow']['fine'] = $fine;
                         $_SESSION['fines_flow']['order'] = $order;
                         $_SESSION['fines_flow']['error'] = null;
                         $_SESSION['fines_flow']['step'] = 'details';
+                        $_SESSION['fines_flow']['just_paid'] = false;
                     }
                 }
             } catch (Throwable $e) {
@@ -141,6 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['fines_flow']['order'] = null;
                 $_SESSION['fines_flow']['error'] = null;
                 $_SESSION['fines_flow']['step'] = 'done';
+                $_SESSION['fines_flow']['just_paid'] = true; // Just paid now
             }
             header('Location: /fines.php');
             exit;
@@ -151,6 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'fine' => null,
                 'order' => null,
                 'error' => null,
+                'just_paid' => false,
             ];
             header('Location: /fines.php');
             exit;
@@ -163,6 +179,7 @@ $flowStep = $_SESSION['fines_flow']['step'] ?? 'lookup';
 $fine = $_SESSION['fines_flow']['fine'] ?? null;
 $order = $_SESSION['fines_flow']['order'] ?? null;
 $flowError = $_SESSION['fines_flow']['error'] ?? null;
+$justPaid = $_SESSION['fines_flow']['just_paid'] ?? false;
 
 
 require __DIR__ . '/views/fines.view.php';
