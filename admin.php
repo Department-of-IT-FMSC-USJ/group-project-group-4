@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_action'])) {
             $stmt = $pdo->prepare("UPDATE identity_card_applications SET processed_by_admin = ? WHERE application_id = ?");
             $stmt->execute([$processed, $id]);
         } elseif ($action === 'update_birth_processed') {
-            $stmt = $pdo->prepare("UPDATE birth_certificates SET processed_by_admin = ? WHERE birth_certificate_number = ?");
+            $stmt = $pdo->prepare("UPDATE birth_certificate_orders SET processed_by_admin = ? WHERE order_id = ?");
             $stmt->execute([$processed, $id]);
         } elseif ($action === 'update_fine_processed') {
             $stmt = $pdo->prepare("UPDATE fines SET processed_by_admin = ? WHERE fine_id = ?");
@@ -120,27 +120,29 @@ $sqlNic = "SELECT
 $stmtNic = $pdo->query($sqlNic);
 $nicApplications = $stmtNic->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch all birth certificate applications (FIFO: oldest unprocessed first; processed items at bottom)
+// Fetch all birth certificate orders (FIFO: oldest unprocessed first; processed items at bottom)
 $sqlBirth = "SELECT 
-            bc.birth_certificate_number,
+            bco.order_id,
+            bco.birth_certificate_number,
+            bco.quantity,
+            bco.order_date,
+            bco.processed_by_admin,
             bc.date_of_birth,
             bc.place_of_birth,
-            bc.father_date_of_birth,
-            bc.mother_date_of_birth,
-            bc.processed_by_admin,
             p.status as payment_status,
             p.amount as payment_amount,
             p.payment_date,
             CASE 
-                WHEN bc.processed_by_admin = 1 THEN 1
+                WHEN bco.processed_by_admin = 1 THEN 1
                 ELSE 0
             END as processed_order
-        FROM birth_certificates bc
-        LEFT JOIN payments p ON bc.payment_id = p.payment_id
-        ORDER BY processed_order ASC, COALESCE(p.payment_date, bc.date_of_birth) ASC";
+        FROM birth_certificate_orders bco
+        LEFT JOIN birth_certificates bc ON bco.birth_certificate_number = bc.birth_certificate_number
+        LEFT JOIN payments p ON bco.payment_id = p.payment_id
+        ORDER BY processed_order ASC, bco.order_date ASC";
 
 $stmtBirth = $pdo->query($sqlBirth);
-$birthCertificates = $stmtBirth->fetchAll(PDO::FETCH_ASSOC);
+$birthCertificateOrders = $stmtBirth->fetchAll(PDO::FETCH_ASSOC);
 
 // Fetch all fines (Completed first, then by date, processed items at bottom)
 $sqlFines = "SELECT 
