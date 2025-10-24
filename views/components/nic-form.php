@@ -229,11 +229,11 @@
         <div class="nic-grid nic-grid--three">
             <div class="nic-field">
                 <label for="resPhone">Residence Phone <span>*</span></label>
-                <input type="tel" id="resPhone" name="resPhone" placeholder="Residence phone" inputmode="numeric" pattern="^\d{10}$" title="Enter a 10-digit phone number" required value="<?= htmlspecialchars($old['resPhone'] ?? '') ?>">
+                <input type="tel" id="resPhone" name="resPhone" placeholder="0112235235" inputmode="numeric" pattern="^\d{10}$" title="Enter a 10-digit phone number" maxlength="10" required value="<?= htmlspecialchars($old['resPhone'] ?? '') ?>">
             </div>
             <div class="nic-field">
                 <label for="mobile_phone">Mobile Phone <span>*</span></label>
-                <input type="tel" id="mobile_phone" name="mobile_phone" placeholder="Mobile phone" inputmode="numeric" pattern="^\d{10}$" title="Enter a 10-digit phone number" required value="<?= htmlspecialchars($old['mobile_phone'] ?? '') ?>">
+                <input type="tel" id="mobile_phone" name="mobile_phone" placeholder="0770539367" inputmode="numeric" pattern="^\d{10}$" title="Enter a 10-digit phone number" maxlength="10" required value="<?= htmlspecialchars($old['mobile_phone'] ?? '') ?>">
             </div>
             <div class="nic-field">
                 <label for="email">Email Address <span>*</span></label>
