@@ -50,7 +50,7 @@ $title = 'Birth Certificate - OneID';
             <p>Enter the certificate number exactly as stored in records (e.g., BC001).</p>
 
             <label for="birthCertificateNumber">Birth Certificate Number</label>
-            <input type="text" id="birthCertificateNumber" name="birthCertificateNumber" placeholder="e.g., BC001" autocomplete="off" maxlength="50" pattern="[A-Za-z0-9\-]{3,50}" title="Use letters/numbers (e.g., BC001)" required>
+            <input type="text" id="birthCertificateNumber" name="birthCertificateNumber" placeholder="e.g., BC001" autocomplete="off" maxlength="10" pattern="^BC\d+$" title="Must start with BC followed by numbers (e.g., BC001)" required>
 
             <?php if ($flowError && $flowStep === 'certificate'): ?>
                 <p class="error-message"><?= htmlspecialchars($flowError) ?></p>
@@ -60,6 +60,56 @@ $title = 'Birth Certificate - OneID';
 
             <button type="submit" class="btn">Proceed</button>
         </form>
+
+        <script>
+            (function() {
+                const bcInput = document.getElementById('birthCertificateNumber');
+                if (!bcInput) return;
+
+                bcInput.addEventListener('input', function(e) {
+                    let value = e.target.value.toUpperCase();
+                    e.target.value = value; // Auto uppercase
+
+                    // Must start with BC followed by numbers only
+                    const regex = /^BC\d*$/;
+
+                    if (!regex.test(value)) {
+                        if (value.length === 0) {
+                            bcInput.setCustomValidity('');
+                            bcInput.style.borderColor = '';
+                        } else if (!value.startsWith('BC')) {
+                            bcInput.setCustomValidity('Must start with BC');
+                            bcInput.style.borderColor = 'red';
+                        } else {
+                            bcInput.setCustomValidity('Only numbers allowed after BC');
+                            bcInput.style.borderColor = 'red';
+                        }
+                    } else if (value.length > 0 && value.length < 3) {
+                        bcInput.setCustomValidity('Must be at least BC followed by numbers (e.g., BC001)');
+                        bcInput.style.borderColor = 'red';
+                    } else {
+                        bcInput.setCustomValidity('');
+                        bcInput.style.borderColor = '';
+                    }
+                });
+
+                // Prevent invalid characters from being typed
+                bcInput.addEventListener('keypress', function(e) {
+                    const char = e.key;
+                    const currentValue = bcInput.value.toUpperCase();
+
+                    // First two characters must be B and C
+                    if (currentValue.length === 0 && char.toUpperCase() !== 'B') {
+                        e.preventDefault();
+                    } else if (currentValue.length === 1 && char.toUpperCase() !== 'C') {
+                        e.preventDefault();
+                    } else if (currentValue.length >= 2 && !/\d/.test(char)) {
+                        // After BC, only digits allowed
+                        e.preventDefault();
+                    }
+                });
+            })();
+        </script>
 
 
         <form class="flow-step <?= $flowStep === 'verification' ? 'is-active' : '' ?>" <?= $flowStep !== 'verification' ? 'hidden' : '' ?> method="POST">
